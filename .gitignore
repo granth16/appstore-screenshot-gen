@@ -1,0 +1,20 @@
+# dependencies
+/node_modules
+
+# next.js build output
+/.next
+/out
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# local env
+.env*.local
+
+# os cruft
+.DS_Store
+
+# user-uploaded captures (keep tree, drop binaries)
+/public/captures/uploads/*
+!/public/captures/uploads/.gitkeep

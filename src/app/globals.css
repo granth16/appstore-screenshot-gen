@@ -1,0 +1,94 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 30% 98%;
+    --foreground: 30 12% 12%;
+    --card: 40 30% 99%;
+    --card-foreground: 30 12% 12%;
+    --popover: 40 30% 99%;
+    --popover-foreground: 30 12% 12%;
+    --primary: 30 10% 14%;
+    --primary-foreground: 40 30% 98%;
+    --secondary: 36 18% 93%;
+    --secondary-foreground: 30 10% 16%;
+    --muted: 36 18% 93%;
+    --muted-foreground: 30 6% 38%;
+    --accent: 36 20% 90%;
+    --accent-foreground: 30 10% 16%;
+    --destructive: 8 78% 52%;
+    --destructive-foreground: 40 30% 98%;
+    --border: 36 16% 87%;
+    --input: 36 16% 87%;
+    --ring: 28 30% 55%;
+    --brand: 170 56% 38%;
+    --brand-foreground: 40 30% 98%;
+    --radius: 0.55rem;
+  }
+
+  .dark {
+    --background: 30 10% 7%;
+    --foreground: 38 18% 94%;
+    --card: 30 10% 7%;
+    --card-foreground: 38 18% 94%;
+    --popover: 30 10% 8%;
+    --popover-foreground: 38 18% 94%;
+    --primary: 38 18% 94%;
+    --primary-foreground: 30 10% 10%;
+    --secondary: 30 8% 17%;
+    --secondary-foreground: 38 18% 94%;
+    --muted: 30 8% 15%;
+    --muted-foreground: 36 8% 70%;
+    --accent: 30 8% 17%;
+    --accent-foreground: 38 18% 94%;
+    --destructive: 8 64% 42%;
+    --destructive-foreground: 38 18% 94%;
+    --border: 30 8% 17%;
+    --input: 30 8% 17%;
+    --ring: 28 24% 60%;
+    --brand: 170 50% 46%;
+    --brand-foreground: 30 10% 10%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  [contenteditable]:empty::before {
+    content: attr(data-placeholder);
+    opacity: 0.4;
+  }
+}
+
+/* Direct-manipulation affordance for draggable stage elements. */
+.drag-box {
+  cursor: move;
+  outline: 2px dashed transparent;
+  outline-offset: 4px;
+  transition: outline-color 120ms ease;
+}
+
+.drag-box:hover {
+  outline-color: rgba(31, 162, 140, 0.55);
+}
+
+.drag-box:focus-within,
+.drag-box--selected {
+  outline-color: rgba(31, 162, 140, 0.9);
+  outline-style: solid;
+}
+
+.drag-box [contenteditable]:focus {
+  box-shadow: 0 0 0 2px rgba(31, 162, 140, 0.45);
+  border-radius: 2px;
+}

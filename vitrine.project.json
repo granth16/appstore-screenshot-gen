@@ -1,0 +1,206 @@
+{
+  "productName": "Lumina",
+  "paletteId": "ink",
+  "locales": [
+    "en"
+  ],
+  "locale": "en",
+  "surface": "play-tablet-10",
+  "orientation": "portrait",
+  "productIcon": "",
+  "scenesBySurface": {
+    "ios-phone": [
+      {
+        "id": "sc_mpyeamer_0",
+        "composition": "spotlight",
+        "label": {
+          "en": "WELCOME"
+        },
+        "headline": {
+          "en": "Everything you need,\nin one tap."
+        },
+        "capture": "/captures/apple/ios-phone/{locale}/01.png"
+      },
+      {
+        "id": "sc_mpyeamer_1",
+        "composition": "spotlight",
+        "label": {
+          "en": "HIGHLIGHT 01"
+        },
+        "headline": {
+          "en": "Built to keep\nyou in flow."
+        },
+        "capture": "",
+        "boxes": {
+          "screen": {
+            "width": 1013.6355043227666,
+            "height": 2064.96,
+            "x": 156.95593204914303,
+            "y": 739.1892631578947,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        }
+      },
+      {
+        "id": "sc_mpyeamer_2",
+        "composition": "anchored-crown",
+        "label": {
+          "en": "nnnHIGHLIGHT 02"
+        },
+        "headline": {
+          "en": "Always a swipe away."
+        },
+        "capture": "/captures/uploads/c8f6bb13b1387e7e.jpg",
+        "dark": true,
+        "boxes": {
+          "screen": {
+            "width": 1013.6355043227666,
+            "height": 2064.96,
+            "x": 145.6348794175642,
+            "y": 969.8368421052623,
+            "rotation": 0,
+            "zIndex": 3
+          },
+          "copy": {
+            "width": 1083,
+            "height": 2615,
+            "x": 139.56316222942985,
+            "y": 3.773684210526147,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        }
+      }
+    ],
+    "ios-tablet": [
+      {
+        "id": "sc_mpyeamer_3",
+        "composition": "spotlight",
+        "label": {
+          "en": "WELCOME"
+        },
+        "headline": {
+          "en": "Made for the\nbigger screen."
+        },
+        "capture": ""
+      },
+      {
+        "id": "sc_mpyeamer_4",
+        "composition": "side-by-side",
+        "label": {
+          "en": "HIGHLIGHT 01"
+        },
+        "headline": {
+          "en": "Wider canvas,\nbolder ideas."
+        },
+        "capture": ""
+      }
+    ],
+    "play-phone": [
+      {
+        "id": "sc_mpyeamer_5",
+        "composition": "spotlight",
+        "label": {
+          "en": "WELCOME"
+        },
+        "headline": {
+          "en": "Everything you need,\nin one tap."
+        },
+        "capture": "/captures/google/play-phone/{locale}/01.png"
+      },
+      {
+        "id": "sc_mpyeamer_6",
+        "composition": "anchored-base",
+        "label": {
+          "en": "HIGHLIGHT 01"
+        },
+        "headline": {
+          "en": "Built to keep\nyou in flow."
+        },
+        "capture": ""
+      },
+      {
+        "id": "sc_mpyeamer_7",
+        "composition": "anchored-crown",
+        "label": {
+          "en": "HIGHLIGHT 02"
+        },
+        "headline": {
+          "en": "Always a swipe away."
+        },
+        "capture": "",
+        "dark": true
+      }
+    ],
+    "play-tablet-7": [
+      {
+        "id": "sc_mpyeamer_8",
+        "composition": "spotlight",
+        "label": {
+          "en": "WELCOME"
+        },
+        "headline": {
+          "en": "Pocket-sized\npower."
+        },
+        "capture": ""
+      },
+      {
+        "id": "sc_mpyeamer_9",
+        "composition": "side-by-side",
+        "label": {
+          "en": "HIGHLIGHT 01"
+        },
+        "headline": {
+          "en": "Wider canvas,\nbolder ideas."
+        },
+        "capture": ""
+      }
+    ],
+    "play-tablet-10": [
+      {
+        "id": "sc_mpyeamer_a",
+        "composition": "spotlight",
+        "label": {
+          "en": "WELCOME"
+        },
+        "headline": {
+          "en": "Made for the\nbigger screen."
+        },
+        "capture": "",
+        "boxes": {
+          "screen": {
+            "width": 1228.8,
+            "height": 1843.2,
+            "x": 209.178947368421,
+            "y": 673.2800000000003,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        }
+      },
+      {
+        "id": "sc_mpyeamer_b",
+        "composition": "side-by-side",
+        "label": {
+          "en": "HIGHLIGHT 01"
+        },
+        "headline": {
+          "en": "Wider canvas,\nbolder ideas."
+        },
+        "capture": ""
+      }
+    ],
+    "play-banner": [
+      {
+        "id": "sc_mpyeamer_c",
+        "composition": "banner",
+        "label": {},
+        "headline": {
+          "en": "Your tagline goes here."
+        },
+        "capture": ""
+      }
+    ]
+  }
+}
