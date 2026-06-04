@@ -12,8 +12,8 @@ npm run dev      # http://localhost:3000
 ## How it works
 
 - **Scenes & surfaces** — each store surface (iOS phone, iOS tablet, Play phone, Play tablets, Play banner) keeps its own deck of scenes, so switching tabs never loses work.
-- **Compositions** — every scene picks a composition (spotlight, anchored base/crown, stacked pair, type-only, side-by-side, banner) that lays out a copy block and one or two device bezels.
-- **Direct manipulation** — drag, resize and rotate the copy and device bezels right on the stage; fine-tune rotation and stacking from the inspector.
+- **Compositions** — every scene picks a composition (Beacon, Plinth, Canopy, Duet, Manifesto, Column, Marquee) that lays out a copy block and one or two device shells.
+- **Direct manipulation** — drag, resize and rotate the copy and device shells right on the stage; fine-tune rotation and stacking from the inspector.
 - **Localized copy** — labels and headlines are stored per locale and fall back gracefully when a translation is missing.
 - **Autosave** — the whole document is mirrored to `localStorage` for instant paint and persisted to `vitrine.project.json` (via `/api/document`) so it survives a clone.
 - **Bulk export** — `/studio/export` walks every locale × size for the active surface and renders deterministic PNGs with `html-to-image`, bundled with `jszip`.
@@ -30,7 +30,7 @@ src/
   runtime/        Deterministic asset (image) cache
   utils/          cn, colour maths, formatting
   studio/         The editor itself
-    canvas/       Scene renderer, device bezels, layout maths
+    canvas/       Scene renderer, device shells, layout blueprints
     export/       Deck export pipeline
     hooks/        Keyboard shortcuts
 ```
@@ -46,6 +46,8 @@ src/
 |------|----------|
 | `src/domain/surfaces.ts` | Canvas sizes, export sizes, store mapping |
 | `src/domain/palettes.ts` | Colour palettes |
-| `src/domain/settings.ts` | Bezel geometry, width formulas, storage keys |
+| `src/domain/settings.ts` | Persistence keys |
+| `src/studio/canvas/device-shell.tsx` | Device silhouettes (CSS, parametric) |
 | `src/state/seed.ts` | The starter document |
-| `src/studio/canvas/composition-rects.ts` | Default element placement per composition |
+| `src/studio/canvas/blueprints.ts` | Default element placement per composition |
+# appstore-screenshot-gen
