@@ -12,6 +12,9 @@ next-env.d.ts
 # local env
 .env*.local
 
+# local studio document autosave
+vitrine.project.json
+
 # os cruft
 .DS_Store
 

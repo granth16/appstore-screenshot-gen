@@ -1,53 +1,62 @@
 # Vitrine
 
-A local-first studio for composing **App Store** and **Google Play** listing screenshots. Lay out device mockups, headlines and captures across multiple store surfaces, then export every required resolution as a single zip.
+Local-first studio for creating polished **App Store** and **Google Play** screenshots.
 
-## Getting started
+[![License: MIT](https://img.shields.io/badge/License-MIT-97D94A.svg)](./LICENSE)
+
+Vitrine helps you compose store listing screenshots with device mockups, marketing copy,
+multiple surfaces, localized text, and one-click PNG export.
+
+## Demo
+
+Demo video coming soon. For now, run it locally and try the editor in your browser.
+
+## Features
+
+- **Store-ready surfaces** for iPhone, iPad, Google Play phones, tablets, and feature banners.
+- **Flexible compositions** for hero frames, device-led layouts, paired screenshots, text-only slides, and banners.
+- **Direct canvas editing** with drag, resize, rotate, and layer controls.
+- **Local-first autosave** through `localStorage` and a local `vitrine.project.json` document.
+- **Localized copy** with per-locale labels and headlines.
+- **Bulk export** to a zip of deterministic PNGs for the selected surface and output sizes.
+
+## Getting Started
 
 ```bash
 npm install
-npm run dev      # http://localhost:3000
+npm run dev
 ```
 
-## How it works
+Open [http://localhost:3000](http://localhost:3000).
 
-- **Scenes & surfaces** — each store surface (iOS phone, iOS tablet, Play phone, Play tablets, Play banner) keeps its own deck of scenes, so switching tabs never loses work.
-- **Compositions** — every scene picks a composition (Beacon, Plinth, Canopy, Duet, Manifesto, Column, Marquee) that lays out a copy block and one or two device shells.
-- **Direct manipulation** — drag, resize and rotate the copy and device shells right on the stage; fine-tune rotation and stacking from the inspector.
-- **Localized copy** — labels and headlines are stored per locale and fall back gracefully when a translation is missing.
-- **Autosave** — the whole document is mirrored to `localStorage` for instant paint and persisted to `vitrine.project.json` (via `/api/document`) so it survives a clone.
-- **Bulk export** — `/studio/export` walks every locale × size for the active surface and renders deterministic PNGs with `html-to-image`, bundled with `jszip`.
+## Scripts
 
-## Project layout
-
+```bash
+npm run dev      # start the Next.js dev server
+npm run build    # create a production build
+npm run start    # run the production server
 ```
+
+## Project Layout
+
+```txt
 src/
-  app/            Next.js routes + API (document persistence, media upload)
-  components/ui/  Headless UI primitives
-  domain/         Surfaces, compositions, palettes, geometry settings, types
-  text/           Localized-copy helpers
-  state/          Seed document + the editing/undo store hook
-  runtime/        Deterministic asset (image) cache
-  utils/          cn, colour maths, formatting
-  studio/         The editor itself
-    canvas/       Scene renderer, device shells, layout blueprints
-    export/       Deck export pipeline
-    hooks/        Keyboard shortcuts
+  app/            Next.js routes and API handlers
+  components/ui/  UI primitives
+  domain/         Surfaces, compositions, palettes, settings, and types
+  runtime/        Asset cache
+  state/          Seed document and editor state
+  studio/         Editor UI, canvas renderer, export flow, and hotkeys
+  text/           Localized copy helpers
+  utils/          Shared utilities
 ```
 
-## Adding captures
+## Adding Captures
 
-1. **Drop a file** in the inspector — it is posted to `/api/media`, hashed and written under `public/captures/uploads/`.
-2. **Reference a static file** under `public/captures/{store}/{surface}/{locale}/` and point a scene at it. Paths may contain `{locale}` and are resolved per export.
+Drop an image into the inspector. Uploaded captures are written under
+`public/captures/uploads/` and ignored by git so local working files do not leak
+into the repository.
 
-## Tuning
+## License
 
-| File | Controls |
-|------|----------|
-| `src/domain/surfaces.ts` | Canvas sizes, export sizes, store mapping |
-| `src/domain/palettes.ts` | Colour palettes |
-| `src/domain/settings.ts` | Persistence keys |
-| `src/studio/canvas/device-shell.tsx` | Device silhouettes (CSS, parametric) |
-| `src/state/seed.ts` | The starter document |
-| `src/studio/canvas/blueprints.ts` | Default element placement per composition |
-# appstore-screenshot-gen
+MIT
