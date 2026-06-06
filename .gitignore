@@ -12,3 +12,6 @@ node_modules/
 
 # local studio document autosave
 *.project.json
+
+# scaffolded user projects (skill output)
+/projects/
