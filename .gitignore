@@ -1,23 +1,14 @@
-# dependencies
-/node_modules
-
-# next.js build output
-/.next
-/out
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-
-# local env
-.env*.local
-
-# local studio document autosave
-storeshots.project.json
-
 # os cruft
 .DS_Store
 
-# user-uploaded captures (keep tree, drop binaries)
-/public/captures/uploads/*
-!/public/captures/uploads/.gitkeep
+# editor / logs
+*.log
+
+# build artifacts and deps (anywhere, incl. skills/*/template)
+.next/
+out/
+node_modules/
+*.tsbuildinfo
+
+# local studio document autosave
+*.project.json

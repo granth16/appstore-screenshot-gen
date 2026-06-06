@@ -1,89 +1,121 @@
 # StoreShots
 
-Local-first studio for creating polished **App Store** and **Google Play** screenshots.
+A skill for AI coding agents (and a ready-to-run app) that scaffolds a local-first Next.js studio
+for **App Store** and **Google Play** listing screenshots. It gives you a live canvas, CSS-drawn
+device frames, an inspector, per-locale copy, persistent project state, and one-click export
+bundles at every store-required size.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-97D94A.svg)](./LICENSE)
 
-StoreShots helps you compose store listing screenshots with device mockups, marketing copy,
-multiple surfaces, localized text, and one-click PNG export — all running locally in your
-browser with no account and no cloud.
-
-## Demo
-
-Demo video coming soon. For now, clone the repo, run it locally, and try the editor in your browser.
+> Demo video coming soon.
 
 ## What It Does
 
-- Turns raw app captures into polished, ad-style store screenshots with large, readable copy.
-- Composes each frame on a live canvas with device mockups, headlines, eyebrows, and artwork.
-- Keeps a separate deck of frames for every store surface, so switching surfaces never loses work.
-- Stores copy per locale, so you can build multiple language sets from one project.
-- Exports every required store size for a surface as a single, organized zip of PNGs.
-- Saves everything locally — to `localStorage` for instant reloads and to a project file on disk
-  so the work survives a refresh.
+- Builds a full screenshot **editor**, not a static one-off page.
+- Turns raw app captures into ad-style frames with big, readable copy.
+- Composes each frame from a copy block + one or two device shells using named layouts.
+- Keeps a separate deck of frames per store surface, so switching surfaces never loses work.
+- Stores copy per locale for multi-language screenshot sets.
+- Saves every deck to `storeshots.project.json` (git-trackable) and mirrors to `localStorage`.
+- Uploads picked screenshots into `public/captures/uploads/<hash>.png`.
+- Supports iPhone, iPad, Android phone, Android 7"/10" tablets, and the Play feature graphic.
+- Exports exact PNG bundles for all required App Store and Google Play sizes.
 
-## Current Editor UI
+## Install (as a skill)
 
-- **Canvas stage** — the active frame rendered full size, with drag, resize, and rotate directly
-  on the device and copy.
-- **Floating sidebar** — project identity, the surface picker, and the inspector for the selected
-  frame.
-- **Surface picker** — one unified menu for iPhone, iPad, Android phone, Android 7"/10" tablets,
-  and the Play feature graphic, each tagged with its store.
-- **Inspector** — edit layout (composition), eyebrow, headline, artwork, rotation, and layer order
-  in a compact two-column property panel.
-- **Storyboard rail** — add, select, duplicate, delete, and drag-to-reorder frames with live
-  thumbnails.
-- **Export** — render the whole surface (every locale × size) to a downloadable zip.
-- **Autosave** — writes through `/api/document` to a local project file and mirrors to
-  `localStorage`.
+Using the [`skills`](https://skills.sh) CLI:
 
-### Compositions
+```bash
+npx skills add granth16/appstore-screenshot-gen
+```
 
-Each frame picks a composition that arranges the copy block and one or two device shells:
+Install globally:
 
-| Composition | Layout |
-|-------------|--------|
-| Beacon | Copy raised high, device floating low |
-| Plinth | Copy on top, device resting on the base |
-| Canopy | Device overhead, copy reading beneath |
-| Duet | A paired back + front device |
-| Manifesto | Copy only, oversized, no device |
-| Column | Copy column left, device right (landscape) |
-| Marquee | 1024×500 Play feature banner |
+```bash
+npx skills add granth16/appstore-screenshot-gen -g
+```
 
-## How To Use
+Install for a specific agent:
 
-1. Capture real app screenshots from a simulator, emulator, or device.
-2. Clone and run the editor:
+```bash
+npx skills add granth16/appstore-screenshot-gen -a cursor
+```
 
-   ```bash
-   git clone https://github.com/granth16/appstore-screenshot-gen.git
-   cd appstore-screenshot-gen
-   npm install
-   npm run dev
-   ```
+Works with Cursor, Claude Code, Windsurf, Codex, OpenCode, and other agents supported by the
+`skills` CLI.
 
-3. Open [http://localhost:3000](http://localhost:3000).
-4. Pick a surface (e.g. iPhone), set the product name, and choose a composition per frame.
-5. Drop your captures into the inspector, then edit eyebrow and headline copy.
-6. Arrange frames in the storyboard rail and fine-tune position, rotation, and stacking.
-7. Click **Export** to download a zip of store-ready PNGs for that surface.
+### Manual install
 
-### Keyboard Shortcuts
+```bash
+git clone https://github.com/granth16/appstore-screenshot-gen
+```
 
-| Action | Shortcut |
-|--------|----------|
-| Undo | `⌘/Ctrl + Z` |
-| Redo | `⌘/Ctrl + Shift + Z` or `⌘/Ctrl + Y` |
-| Next / previous frame | `↓` / `↑` or `J` / `K` |
-| Duplicate frame | `⌘/Ctrl + D` |
-| Delete frame | `⌘/Ctrl + Backspace` |
-| Deselect | `Esc` |
+The skill lives in [`skills/storeshots`](./skills/storeshots).
+
+## Usage
+
+Once installed, ask your coding agent for store screenshots:
+
+```
+Build App Store and Google Play screenshots for my app.
+```
+
+The skill asks for your app context, source screenshots, surfaces, locales, visual direction,
+and frame count, then scaffolds the editor project and starts it.
+
+### Example Prompts
+
+```
+Build App Store screenshots for my habit tracker.
+It helps people stay consistent with simple daily routines.
+6 frames, clean minimal style, warm neutrals.
+```
+
+```
+Generate App Store + Play screenshots for my finance app.
+Strengths: fast expense capture, clear monthly trends, shared budgets.
+Sharp, high-contrast style, 7 frames.
+```
+
+```
+Build screenshots for my language app in English and German.
+Lead with the core outcome, vary device placement across frames.
+```
+
+### Better Prompt Tips
+
+- Say what the app does in one sentence.
+- List the top 3–5 features in priority order.
+- Mention the surfaces and locales you need.
+- Describe the visual style (maps to a palette: ink, frost, clay, lagoon).
+- Say how many frames you want.
+- Provide source screenshot paths and an app icon if you have them.
+
+## Prefer to just run the app?
+
+You don't need an agent. The editor is a normal Next.js app:
+
+```bash
+git clone https://github.com/granth16/appstore-screenshot-gen
+cd appstore-screenshot-gen/skills/storeshots/template
+npm install
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000). See
+[`skills/storeshots/template/README.md`](./skills/storeshots/template/README.md) for the full
+product docs (editor UI, compositions, export sizes, project state, tech stack).
+
+## Repository Layout
+
+```txt
+skills/
+  storeshots/
+    SKILL.md        # the agent skill (what gets installed)
+    template/       # the StoreShots editor that the skill scaffolds
+```
 
 ## Export Sizes
-
-Frames are authored at the largest size for each surface and uniformly downscaled on export.
 
 ### Apple App Store
 
@@ -107,70 +139,11 @@ Frames are authored at the largest size for each surface and uniformly downscale
 | 10" tablet landscape | 2560 × 1600 |
 | Feature graphic | 1024 × 500 |
 
-Exports are bundled into a zip organized by `store/surface/locale/<width>x<height>/`, with one
-PNG per frame.
-
-## Project State
-
-- `storeshots.project.json` is the local source of truth for product name, palette, locales,
-  active surface, orientation, and the per-surface decks of frames. It is written via
-  `/api/document` and is git-ignored so local working files never leak into the repo.
-- Uploaded captures are written to `public/captures/uploads/<hash>.png` and are also git-ignored.
-- The editor reads `localStorage` first for an instant paint, then reconciles with the project
-  file on disk.
-- Reset controls restore either the active surface or the whole document to the seeded defaults.
-
-## Tech Stack
-
-| Dependency | Purpose |
-|------------|---------|
-| Next.js | Dev server and app shell |
-| React | Editor UI |
-| TypeScript | Project and frame state safety |
-| Tailwind CSS | Styling |
-| Radix UI | Dialogs, selects, labels, tabs |
-| html-to-image | Exact PNG rendering |
-| JSZip | Export bundle downloads |
-| dnd-kit | Frame reordering |
-| react-rnd | Draggable and resizable canvas elements |
-| lucide-react | Icons |
-| sonner | Toast notifications |
-
-## Project Layout
-
-```txt
-src/
-  app/            Next.js routes and API handlers (document persistence, media upload)
-  components/ui/  UI primitives
-  domain/         Surfaces, compositions, palettes, settings, and types
-  runtime/        Asset cache
-  state/          Seed document and editor state
-  studio/         Editor UI, canvas renderer, export flow, and hotkeys
-  text/           Localized copy helpers
-  utils/          Shared utilities
-```
-
-## Scripts
-
-```bash
-npm run dev      # start the Next.js dev server
-npm run build    # create a production build
-npm run start    # run the production server
-npm run lint     # run the linter
-```
-
-## Roadmap
-
-- Demo video and editor screenshots in this README.
-- More device frames and composition presets.
-- Reusable, shareable color/typography themes.
-- Optional connected-canvas mode where elements span adjacent frames.
-- One-click deploy template.
-
 ## Contributing
 
-Contributions are welcome — especially around export reliability, new device frames, composition
-presets, and screenshot design guidance. Open an issue to discuss larger changes, then send a PR.
+Contributions are welcome — especially around export reliability, new device frames,
+composition presets, and screenshot design guidance. Open an issue to discuss larger changes,
+then send a PR.
 
 ## License
 
