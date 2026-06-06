@@ -58,9 +58,9 @@ export function ProjectPanel({
             aria-hidden
             className="grid h-7 w-7 place-items-center rounded-lg bg-brand text-brand-foreground text-sm font-black leading-none shadow-sm"
           >
-            V
+            S
           </span>
-          <span className="select-none text-sm font-semibold tracking-tight">vitrine</span>
+          <span className="select-none text-sm font-semibold tracking-tight">StoreShots</span>
         </div>
         <Button
           tone="quiet"

@@ -1,5 +1,5 @@
 // Turn arbitrary text into a filesystem-friendly slug.
-export function toSlug(input: string, fallback = "vitrine"): string {
+export function toSlug(input: string, fallback = "storeshots"): string {
   return (
     input
       .toLowerCase()

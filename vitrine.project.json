@@ -1,0 +1,214 @@
+{
+  "productName": "Lumina",
+  "paletteId": "ink",
+  "locales": [
+    "en"
+  ],
+  "locale": "en",
+  "surface": "ios-phone",
+  "orientation": "portrait",
+  "productIcon": "",
+  "scenesBySurface": {
+    "ios-phone": [
+      {
+        "id": "sc_mq24nlfm_0",
+        "composition": "beacon",
+        "label": {
+          "en": "WELCOME"
+        },
+        "headline": {
+          "en": "Everything you need,\nin one tap."
+        },
+        "capture": "/captures/uploads/ff61e10aac9a1352.png",
+        "boxes": {
+          "screen": {
+            "width": 958,
+            "height": 2074,
+            "x": 212.76809971593707,
+            "y": 699.7646355049973,
+            "rotation": 0,
+            "zIndex": 2
+          },
+          "copy": {
+            "width": 1108.8,
+            "height": 745.6800000000001,
+            "x": 101.04038155802863,
+            "y": 100.4483942766295,
+            "rotation": 0,
+            "zIndex": 1
+          }
+        }
+      },
+      {
+        "id": "sc_mq24nlfm_1",
+        "composition": "plinth",
+        "label": {
+          "en": "HIGHLIGHT 01"
+        },
+        "headline": {
+          "en": "Built to keep\nyou in flow."
+        },
+        "capture": "",
+        "boxes": {
+          "screen": {
+            "width": 874.51056,
+            "height": 1892.88,
+            "x": 218.18510155802855,
+            "y": 928.3383147853734,
+            "rotation": 0,
+            "zIndex": 3
+          }
+        }
+      },
+      {
+        "id": "sc_mq24nlfm_2",
+        "composition": "canopy",
+        "label": {
+          "en": "HIGHLIGHT 02"
+        },
+        "headline": {
+          "en": "Always a swipe away."
+        },
+        "capture": "",
+        "dark": true,
+        "boxes": {
+          "screen": {
+            "width": 795.0096,
+            "height": 1720.8,
+            "x": 301.6055152511416,
+            "y": 677.8869406392705,
+            "rotation": 0,
+            "zIndex": 3
+          },
+          "copy": {
+            "width": 1109,
+            "height": 2475,
+            "x": 144.88767230579762,
+            "y": 166.00456621004562,
+            "rotation": 0,
+            "zIndex": 4
+          }
+        }
+      }
+    ],
+    "ios-tablet": [
+      {
+        "id": "sc_mq24nlfm_3",
+        "composition": "beacon",
+        "label": {
+          "en": "WELCOME"
+        },
+        "headline": {
+          "en": "Made for the\nbigger screen."
+        },
+        "capture": ""
+      },
+      {
+        "id": "sc_mq24nlfm_4",
+        "composition": "column",
+        "label": {
+          "en": "HIGHLIGHT 01"
+        },
+        "headline": {
+          "en": "Wider canvas,\nbolder ideas."
+        },
+        "capture": ""
+      }
+    ],
+    "play-phone": [
+      {
+        "id": "sc_mq24nlfm_5",
+        "composition": "beacon",
+        "label": {
+          "en": "WELCOME"
+        },
+        "headline": {
+          "en": "Everything you need,\nin one tap."
+        },
+        "capture": ""
+      },
+      {
+        "id": "sc_mq24nlfm_6",
+        "composition": "plinth",
+        "label": {
+          "en": "HIGHLIGHT 01"
+        },
+        "headline": {
+          "en": "Built to keep\nyou in flow."
+        },
+        "capture": ""
+      },
+      {
+        "id": "sc_mq24nlfm_7",
+        "composition": "canopy",
+        "label": {
+          "en": "HIGHLIGHT 02"
+        },
+        "headline": {
+          "en": "Always a swipe away."
+        },
+        "capture": "",
+        "dark": true
+      }
+    ],
+    "play-tablet-7": [
+      {
+        "id": "sc_mq24nlfm_8",
+        "composition": "beacon",
+        "label": {
+          "en": "WELCOME"
+        },
+        "headline": {
+          "en": "Pocket-sized\npower."
+        },
+        "capture": ""
+      },
+      {
+        "id": "sc_mq24nlfm_9",
+        "composition": "column",
+        "label": {
+          "en": "HIGHLIGHT 01"
+        },
+        "headline": {
+          "en": "Wider canvas,\nbolder ideas."
+        },
+        "capture": ""
+      }
+    ],
+    "play-tablet-10": [
+      {
+        "id": "sc_mq24nlfm_a",
+        "composition": "beacon",
+        "label": {
+          "en": "WELCOME"
+        },
+        "headline": {
+          "en": "Made for the\nbigger screen."
+        },
+        "capture": ""
+      },
+      {
+        "id": "sc_mq24nlfm_b",
+        "composition": "column",
+        "label": {
+          "en": "HIGHLIGHT 01"
+        },
+        "headline": {
+          "en": "Wider canvas,\nbolder ideas."
+        },
+        "capture": ""
+      }
+    ],
+    "play-banner": [
+      {
+        "id": "sc_mq24nlfm_c",
+        "composition": "marquee",
+        "label": {},
+        "headline": {
+          "en": "Your tagline goes here."
+        },
+        "capture": ""
+      }
+    ]
+  }
+}

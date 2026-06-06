@@ -5,7 +5,7 @@ import "./globals.css";
 const sans = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "Vitrine — store listing studio",
+  title: "StoreShots — store listing screenshot studio",
   description: "Compose and export App Store and Google Play listing screenshots.",
 };
 

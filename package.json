@@ -1,8 +1,8 @@
 {
-  "name": "vitrine-studio",
+  "name": "storeshots",
   "version": "1.0.0",
   "private": false,
-  "description": "Vitrine — a local-first studio for composing App Store and Google Play listing screenshots.",
+  "description": "StoreShots — a local-first studio for composing App Store and Google Play listing screenshots.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
