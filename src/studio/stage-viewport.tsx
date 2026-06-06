@@ -65,7 +65,7 @@ export function StageViewport({
   return (
     <div
       ref={hostRef}
-      className="relative flex h-full w-full items-center justify-center overflow-hidden bg-[radial-gradient(60%_60%_at_50%_40%,_hsl(var(--background))_0%,_hsl(var(--muted))_100%)]"
+      className="workbench-grid relative flex h-full w-full items-center justify-center overflow-hidden"
     >
       <div
         style={{
@@ -95,19 +95,19 @@ export function StageViewport({
         />
       </div>
 
-      <div className="pointer-events-none absolute left-4 top-4 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+      <div className="pointer-events-none absolute left-1/2 top-4 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-border bg-card/80 px-3 py-1 text-[11px] text-muted-foreground backdrop-blur">
         <span className="font-medium text-foreground">{SURFACE_NAME[surface]}</span>
-        <span aria-hidden>·</span>
+        <span aria-hidden className="text-brand">›</span>
         <span>{COMPOSITION_NAME[scene.composition]}</span>
         {orientation === "landscape" && (
           <>
-            <span aria-hidden>·</span>
+            <span aria-hidden className="text-brand">›</span>
             <span>landscape</span>
           </>
         )}
       </div>
 
-      <div className="pointer-events-none absolute bottom-4 right-4 flex items-center gap-1.5 text-[10px] tabular-nums text-muted-foreground">
+      <div className="pointer-events-none absolute bottom-4 left-4 flex items-center gap-1.5 rounded-md border border-border bg-card/80 px-2 py-1 text-[10px] tabular-nums text-muted-foreground backdrop-blur">
         <span>{canvasW}×{canvasH}</span>
         <span aria-hidden>·</span>
         <span>{(scale * 100).toFixed(0)}%</span>

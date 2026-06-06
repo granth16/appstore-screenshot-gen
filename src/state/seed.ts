@@ -9,25 +9,25 @@ export const uid = (): string =>
 
 const base = (text: string) => ({ [BASE_LOCALE]: text });
 
-function phoneDeck(captureRoot: string): Scene[] {
+function phoneDeck(): Scene[] {
   return [
     {
       id: uid(),
-      composition: "spotlight",
+      composition: "beacon",
       label: base("WELCOME"),
       headline: base("Everything you need,\nin one tap."),
-      capture: `${captureRoot}/{locale}/01.png`,
+      capture: "",
     },
     {
       id: uid(),
-      composition: "anchored-base",
+      composition: "plinth",
       label: base("HIGHLIGHT 01"),
       headline: base("Built to keep\nyou in flow."),
       capture: "",
     },
     {
       id: uid(),
-      composition: "anchored-crown",
+      composition: "canopy",
       label: base("HIGHLIGHT 02"),
       headline: base("Always a swipe away."),
       capture: "",
@@ -40,7 +40,7 @@ function tabletDeck(scale: "small" | "large"): Scene[] {
   return [
     {
       id: uid(),
-      composition: "spotlight",
+      composition: "beacon",
       label: base("WELCOME"),
       headline: base(
         scale === "small" ? "Pocket-sized\npower." : "Made for the\nbigger screen.",
@@ -49,7 +49,7 @@ function tabletDeck(scale: "small" | "large"): Scene[] {
     },
     {
       id: uid(),
-      composition: "side-by-side",
+      composition: "column",
       label: base("HIGHLIGHT 01"),
       headline: base("Wider canvas,\nbolder ideas."),
       capture: "",
@@ -61,7 +61,7 @@ function bannerDeck(): Scene[] {
   return [
     {
       id: uid(),
-      composition: "banner",
+      composition: "marquee",
       label: {},
       headline: base("Your tagline goes here."),
       capture: "",
@@ -78,16 +78,16 @@ export const DEFAULT_DOC: StudioDoc = {
   orientation: "portrait",
   productIcon: "",
   scenesBySurface: {
-    "ios-phone": phoneDeck("/captures/apple/ios-phone"),
+    "ios-phone": phoneDeck(),
     "ios-tablet": tabletDeck("large"),
-    "play-phone": phoneDeck("/captures/google/play-phone"),
+    "play-phone": phoneDeck(),
     "play-tablet-7": tabletDeck("small"),
     "play-tablet-10": tabletDeck("large"),
     "play-banner": bannerDeck(),
   },
 };
 
-export function makeScene(composition: Composition = "anchored-base"): Scene {
+export function makeScene(composition: Composition = "plinth"): Scene {
   return {
     id: uid(),
     composition,
@@ -97,6 +97,4 @@ export function makeScene(composition: Composition = "anchored-base"): Scene {
   };
 }
 
-// Convenience re-export so callers don't reach across to the surfaces module
-// just to learn a scene's store.
 export type { Surface };

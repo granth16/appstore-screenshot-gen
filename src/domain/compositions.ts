@@ -1,34 +1,34 @@
 import type { Composition } from "./types";
 
-// Friendly names shown in the composition dropdown.
+// Display names shown in the composition picker.
 export const COMPOSITION_NAME: Record<Composition, string> = {
-  spotlight: "Spotlight",
-  "anchored-base": "Anchored base",
-  "anchored-crown": "Anchored crown",
-  "stacked-pair": "Stacked pair",
-  "type-only": "Type only",
-  "side-by-side": "Side by side",
-  banner: "Banner",
+  beacon: "Beacon",
+  plinth: "Plinth",
+  canopy: "Canopy",
+  duet: "Duet",
+  manifesto: "Manifesto",
+  column: "Column",
+  marquee: "Marquee",
 };
 
-// One-line hint under each composition name.
+// A short note shown beneath each composition name.
 export const COMPOSITION_HINT: Record<Composition, string> = {
-  spotlight: "Headline up top, device sitting low",
-  "anchored-base": "Headline top, device hugging the bottom",
-  "anchored-crown": "Flipped — device on top, copy below",
-  "stacked-pair": "Layered back + front devices",
-  "type-only": "Big standalone headline, no device",
-  "side-by-side": "Copy left, device right (landscape)",
-  banner: "1024x500 Play feature graphic",
+  beacon: "Copy raised high, device floating low",
+  plinth: "Copy on top, device resting on the base",
+  canopy: "Device overhead, copy reading beneath",
+  duet: "A paired back + front device",
+  manifesto: "Copy only, oversized, no device",
+  column: "Copy column left, device right (landscape)",
+  marquee: "1024x500 Play feature banner",
 };
 
-// Compositions offered in the dropdown, in order.
+// Order shown in the picker.
 export const COMPOSITION_ORDER: Composition[] = [
-  "spotlight",
-  "anchored-base",
-  "anchored-crown",
-  "stacked-pair",
-  "type-only",
-  "side-by-side",
-  "banner",
+  "beacon",
+  "plinth",
+  "canopy",
+  "duet",
+  "manifesto",
+  "column",
+  "marquee",
 ];

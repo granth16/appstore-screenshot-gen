@@ -1,19 +1,21 @@
 "use client";
 import * as React from "react";
 import { Toaster, toast } from "sonner";
-import { IOS_BEZEL_ASSET } from "@/domain/settings";
+import { COMPOSITION_NAME } from "@/domain/compositions";
 import { PALETTES } from "@/domain/palettes";
-import { canvasSize } from "@/domain/surfaces";
+import { allowsLandscape, canvasSize, outputSizesFor, SURFACE_NAME } from "@/domain/surfaces";
 import type { BoxTransform, ElementKey, Scene } from "@/domain/types";
 import { warmAssets } from "@/runtime/asset-cache";
-import { makeScene, uid } from "@/state/seed";
+import { uid } from "@/state/seed";
 import { useStudioDoc } from "@/state/use-studio-doc";
 import { editCopy, expandCapturePath } from "@/text/copy";
 import { SceneRenderer } from "./canvas/scene-renderer";
-import { CommandBar } from "./command-bar";
+import { CanvasHeader } from "./canvas-header";
+import { ExportFooter } from "./export-footer";
 import { runDeckExport } from "./export/export-deck";
 import { useStudioHotkeys } from "./hooks/use-hotkeys";
 import { InspectorPanel } from "./inspector-panel";
+import { ProjectPanel } from "./project-panel";
 import { SceneRail } from "./scene-rail";
 import { StageViewport } from "./stage-viewport";
 
@@ -52,7 +54,6 @@ export function StudioApp() {
   // races an image load.
   const assetPaths = React.useMemo(() => {
     const set = new Set<string>();
-    set.add(IOS_BEZEL_ASSET);
     if (doc.productIcon) set.add(doc.productIcon);
     const everyScene: Scene[] = Object.values(doc.scenesBySurface).flat();
     for (const s of everyScene) {
@@ -242,7 +243,7 @@ export function StudioApp() {
       <div className="flex h-screen items-center justify-center">
         <div className="flex flex-col items-center gap-2 text-muted-foreground">
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-current border-t-transparent" />
-          <p className="text-sm">Loading studio…</p>
+          <p className="text-sm">Preparing studio…</p>
         </div>
       </div>
     );
@@ -250,56 +251,73 @@ export function StudioApp() {
 
   const { w: canvasW, h: canvasH } = canvasSize(doc.surface, doc.orientation);
   const busy = !!exporting;
+  const setSurface = (v: typeof doc.surface) => commit((d) => ({ ...d, surface: v }));
+  const surfaceName = SURFACE_NAME[doc.surface];
+  const sizeCount = outputSizesFor(doc.surface, doc.orientation).length;
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-background">
+    <div className="relative flex h-screen overflow-hidden bg-background">
       <Toaster position="top-right" richColors closeButton />
-      <CommandBar
-        productName={doc.productName}
-        setProductName={(v) => commit((d) => ({ ...d, productName: v }))}
-        locale={doc.locale}
-        setLocale={(v) => commit((d) => ({ ...d, locale: v }))}
-        locales={doc.locales}
-        surface={doc.surface}
-        setSurface={(v) => commit((d) => ({ ...d, surface: v }))}
-        orientation={doc.orientation}
-        setOrientation={(v) => commit((d) => ({ ...d, orientation: v }))}
-        onExport={exportBundle}
-        onResetAll={() => {
-          resetAll();
-          setActiveSceneId(null);
-          toast.success("Reset all surfaces to defaults");
-        }}
-        onResetSurface={() => {
-          resetSurface(doc.surface);
-          setActiveSceneId(null);
-          toast.success(`Reset ${doc.surface} to defaults`);
-        }}
-        exporting={exporting}
-        savedAt={savedAt}
-        saveError={saveError}
-        busy={busy}
-      />
 
-      <div className="flex flex-1 flex-col overflow-hidden md:flex-row">
-        <aside className="w-full shrink-0 max-h-64 overflow-hidden border-r bg-card md:max-h-none md:w-72">
-          <SceneRail
-            scenes={scenes}
-            activeId={activeScene?.id || null}
-            surface={doc.surface}
-            orientation={doc.orientation}
-            palette={palette}
-            locale={doc.locale}
-            productName={doc.productName}
-            productIcon={doc.productIcon}
-            disabled={busy}
-            onReorder={reorderScenes}
-            onSelect={setActiveSceneId}
-            onDelete={deleteScene}
-            onDuplicate={duplicateScene}
-            onAdd={addScene}
-          />
-        </aside>
+      <aside className="absolute bottom-4 left-4 top-4 z-20 flex w-72 flex-col overflow-hidden rounded-2xl border border-border bg-card/95 shadow-[0_24px_60px_-20px_rgba(0,0,0,0.55)] backdrop-blur md:w-80">
+        <ProjectPanel
+          productName={doc.productName}
+          setProductName={(v) => commit((d) => ({ ...d, productName: v }))}
+          surface={doc.surface}
+          setSurface={setSurface}
+          surfaceName={surfaceName}
+          onResetAll={() => {
+            resetAll();
+            setActiveSceneId(null);
+            toast.success("Reset all surfaces to defaults");
+          }}
+          onResetSurface={() => {
+            resetSurface(doc.surface);
+            setActiveSceneId(null);
+            toast.success(`Reset ${surfaceName} to defaults`);
+          }}
+          busy={busy}
+        />
+        <div className="min-h-0 flex-1 overflow-hidden">
+          {activeScene ? (
+            <InspectorPanel
+              scene={activeScene}
+              locale={doc.locale}
+              selectedKey={selectedKey}
+              onChange={(patch) => patchScene(activeScene.id, patch)}
+            />
+          ) : (
+            <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-center text-sm text-muted-foreground">
+              <p className="font-medium text-foreground">Nothing to inspect</p>
+              <p className="text-xs">Frame settings appear here once you add or pick one.</p>
+            </div>
+          )}
+        </div>
+        <ExportFooter
+          onExport={exportBundle}
+          exporting={exporting}
+          localeCount={doc.locales.length}
+          sizeCount={sizeCount}
+          busy={busy}
+        />
+      </aside>
+
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden pl-80 md:pl-[22rem]">
+        <CanvasHeader
+          surface={doc.surface}
+          composition={activeScene ? COMPOSITION_NAME[activeScene.composition] : undefined}
+          orientation={doc.orientation}
+          setOrientation={(v) => commit((d) => ({ ...d, orientation: v }))}
+          hasLandscape={allowsLandscape(doc.surface)}
+          locale={doc.locale}
+          locales={doc.locales}
+          setLocale={(v) => commit((d) => ({ ...d, locale: v }))}
+          onUndo={undo}
+          onRedo={redo}
+          savedAt={savedAt}
+          saveError={saveError}
+          busy={busy}
+        />
 
         <main className="flex min-h-0 flex-1 items-stretch overflow-hidden">
           {activeScene ? (
@@ -322,28 +340,31 @@ export function StudioApp() {
               onSelect={setSelectedKey}
             />
           ) : (
-            <div className="flex flex-1 flex-col items-center justify-center gap-2 p-8 text-center text-sm text-muted-foreground">
-              <p className="font-medium text-foreground">No scene selected</p>
-              <p>Add a scene on the left to get started.</p>
+            <div className="workbench-grid flex flex-1 flex-col items-center justify-center gap-2 p-8 text-center text-sm text-muted-foreground">
+              <p className="font-medium text-foreground">No frame selected</p>
+              <p>Add a frame from the strip below to get started.</p>
             </div>
           )}
         </main>
 
-        <aside className="w-full shrink-0 max-h-96 overflow-hidden border-l bg-card md:max-h-none md:w-80">
-          {activeScene ? (
-            <InspectorPanel
-              scene={activeScene}
-              locale={doc.locale}
-              selectedKey={selectedKey}
-              onChange={(patch) => patchScene(activeScene.id, patch)}
-            />
-          ) : (
-            <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-center text-sm text-muted-foreground">
-              <p className="font-medium text-foreground">Nothing to inspect</p>
-              <p className="text-xs">Scene settings appear here once you add or select one.</p>
-            </div>
-          )}
-        </aside>
+        <div className="h-[132px] shrink-0 border-t border-border bg-card">
+          <SceneRail
+            scenes={scenes}
+            activeId={activeScene?.id || null}
+            surface={doc.surface}
+            orientation={doc.orientation}
+            palette={palette}
+            locale={doc.locale}
+            productName={doc.productName}
+            productIcon={doc.productIcon}
+            disabled={busy}
+            onReorder={reorderScenes}
+            onSelect={setActiveSceneId}
+            onDelete={deleteScene}
+            onDuplicate={duplicateScene}
+            onAdd={addScene}
+          />
+        </div>
       </div>
 
       {/* Off-screen export targets — full-resolution canvases for html-to-image. */}

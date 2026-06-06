@@ -1,5 +1,6 @@
 import { DOC_STORAGE_KEY } from "@/domain/settings";
-import type { Scene, StudioDoc } from "@/domain/types";
+import { COMPOSITION_NAME } from "@/domain/compositions";
+import type { Composition, Scene, StudioDoc } from "@/domain/types";
 import { normalizeCopy } from "@/text/copy";
 import { DEFAULT_DOC } from "./seed";
 
@@ -7,9 +8,28 @@ export type SaveOutcome = { ok: true } | { ok: false; error: string };
 
 const errorText = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
+// Maps slugs from earlier iterations onto the current vocabulary so previously
+// saved projects keep rendering after a rename.
+const COMPOSITION_ALIASES: Record<string, Composition> = {
+  spotlight: "beacon",
+  "anchored-base": "plinth",
+  "anchored-crown": "canopy",
+  "stacked-pair": "duet",
+  "type-only": "manifesto",
+  "side-by-side": "column",
+  banner: "marquee",
+};
+
+function resolveComposition(value: unknown): Composition {
+  if (typeof value === "string" && value in COMPOSITION_NAME) return value as Composition;
+  if (typeof value === "string" && value in COMPOSITION_ALIASES) return COMPOSITION_ALIASES[value];
+  return "plinth";
+}
+
 function migrateScene(scene: Scene): Scene {
   return {
     ...scene,
+    composition: resolveComposition(scene.composition),
     label: normalizeCopy(scene.label as unknown),
     headline: normalizeCopy(scene.headline as unknown),
   };

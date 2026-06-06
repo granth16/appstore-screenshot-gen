@@ -2,7 +2,7 @@
 // Core domain vocabulary for the studio.
 //
 //   Surface      a store target we generate screenshots for
-//   Composition  how a single scene arranges its copy + device bezels
+//   Composition  how a single scene arranges its copy + device shell
 //   Scene        one exported screenshot (the editable unit)
 //   StudioDoc    the whole persisted workspace
 // ---------------------------------------------------------------------------
@@ -21,13 +21,13 @@ export type Store = "apple" | "google";
 
 // Arrangements a scene can adopt. Mixing them gives a deck visual rhythm.
 export type Composition =
-  | "spotlight"      // headline up top, device anchored low
-  | "anchored-base"  // headline top, device hugging the bottom edge
-  | "anchored-crown" // device up top, headline below (the inverse)
-  | "stacked-pair"   // a back + front device, headline above
-  | "type-only"      // oversized headline, no device, decorative wash
-  | "side-by-side"   // landscape: copy on the left, device on the right
-  | "banner";        // 1024x500 Play feature graphic
+  | "beacon"     // copy raised high, device floating low-centre
+  | "plinth"     // copy at the top, device resting on the base
+  | "canopy"     // device overhead, copy reading underneath
+  | "duet"       // a paired back + front device under the copy
+  | "manifesto"  // copy only, oversized, no device
+  | "column"     // copy in a left column, device to the right (landscape)
+  | "marquee";   // 1024x500 Play feature banner
 
 // A positioned, optionally rotated box in canvas pixel space.
 export type BoxTransform = {
@@ -52,7 +52,7 @@ export type Scene = {
   label: LocalizedCopy;        // tiny uppercase eyebrow above the headline
   headline: LocalizedCopy;     // multi-line; newlines are deliberate
   capture: string;             // path under /captures — may embed {locale}
-  captureEcho?: string;        // the back device for stacked-pair
+  captureEcho?: string;        // the back device for the duet composition
   dark?: boolean;              // dark background variant
   boxes?: Partial<Record<ElementKey, BoxTransform>>; // per-element overrides
 };

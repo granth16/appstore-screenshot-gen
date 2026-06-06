@@ -12,11 +12,10 @@ import {
 import {
   SortableContext,
   arrayMove,
+  horizontalListSortingStrategy,
   sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import type { Palette, Scene, StageOrientation, Surface } from "@/domain/types";
 import { makeScene } from "@/state/seed";
 import { SceneTile } from "./scene-tile";
@@ -38,8 +37,8 @@ type Props = {
   onAdd: (scene: Scene) => void;
 };
 
-// The left rail: an ordered, drag-sortable list of scenes for the active
-// surface plus an "add scene" action.
+// The bottom filmstrip: a horizontally scrollable, drag-sortable row of scene
+// thumbnails with a trailing "new frame" tile.
 export function SceneRail({
   scenes,
   activeId,
@@ -71,18 +70,21 @@ export function SceneRail({
   };
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="border-b p-3">
-        <h2 className="text-sm font-semibold">Scenes</h2>
-        <p className="text-xs text-muted-foreground">
-          {scenes.length} scene{scenes.length === 1 ? "" : "s"} · drag to reorder
-        </p>
+    <div className="flex h-full items-stretch">
+      <div className="flex w-32 shrink-0 flex-col justify-center border-r border-border px-4">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          Storyboard
+        </span>
+        <span className="mt-0.5 text-xs text-foreground">
+          {scenes.length} frame{scenes.length === 1 ? "" : "s"}
+        </span>
+        <span className="mt-0.5 text-[10px] text-muted-foreground">drag to reorder</span>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-2">
+      <div className="flex-1 overflow-x-auto overflow-y-hidden">
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={scenes.map((s) => s.id)} strategy={verticalListSortingStrategy}>
-            <div className="space-y-1.5">
+          <SortableContext items={scenes.map((s) => s.id)} strategy={horizontalListSortingStrategy}>
+            <div className="flex h-full items-center gap-3 px-4">
               {scenes.map((scene, i) => (
                 <SceneTile
                   key={scene.id}
@@ -100,28 +102,21 @@ export function SceneRail({
                   onDuplicate={() => onDuplicate(scene.id)}
                 />
               ))}
-              {scenes.length === 0 && (
-                <div className="rounded-lg border border-dashed p-6 text-center">
-                  <p className="text-xs font-medium text-foreground">No scenes yet</p>
-                  <p className="mt-1 text-[11px] text-muted-foreground">
-                    Click <span className="font-semibold">Add scene</span> to get started.
-                  </p>
-                </div>
-              )}
+
+              <button
+                type="button"
+                onClick={() => onAdd(makeScene("plinth"))}
+                disabled={disabled}
+                className="flex h-[104px] w-[78px] shrink-0 flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-border text-muted-foreground transition-colors hover:border-brand/70 hover:bg-secondary hover:text-foreground disabled:opacity-40"
+                title="Add a new frame"
+                aria-label="Add a new frame"
+              >
+                <Plus className="h-5 w-5" />
+                <span className="text-[10px] font-medium uppercase tracking-wide">New frame</span>
+              </button>
             </div>
           </SortableContext>
         </DndContext>
-      </div>
-
-      <div className="border-t bg-card p-3">
-        <Button
-          type="button"
-          className="w-full"
-          onClick={() => onAdd(makeScene("anchored-base"))}
-          disabled={disabled}
-        >
-          <Plus className="h-4 w-4" /> Add scene
-        </Button>
       </div>
     </div>
   );

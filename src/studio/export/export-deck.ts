@@ -108,8 +108,8 @@ export async function runDeckExport(p: DeckExportParams): Promise<DeckExportResu
         try {
           const dataUrl = await captureNode(node, size.w, size.h, scale);
           const base64 = dataUrl.split(",")[1] || "";
-          const filename = `${String(i + 1).padStart(2, "0")}-${scene.composition}.png`;
-          zip.file(`${store}/${p.surface}/${size.w}x${size.h}/${locale}/${filename}`, base64, {
+          const filename = `frame-${String(i + 1).padStart(2, "0")}-${scene.composition}.png`;
+          zip.file(`${store}/${p.surface}/${locale}/${size.w}x${size.h}/${filename}`, base64, {
             base64: true,
           });
           ok += 1;

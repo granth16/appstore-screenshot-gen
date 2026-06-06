@@ -3,53 +3,31 @@
 @tailwind utilities;
 
 @layer base {
+  /* Dark "workbench" chrome. Scene palettes (which colour the exported
+     screenshots) live separately in domain/palettes.ts. */
   :root {
-    --background: 40 30% 98%;
-    --foreground: 30 12% 12%;
-    --card: 40 30% 99%;
-    --card-foreground: 30 12% 12%;
-    --popover: 40 30% 99%;
-    --popover-foreground: 30 12% 12%;
-    --primary: 30 10% 14%;
-    --primary-foreground: 40 30% 98%;
-    --secondary: 36 18% 93%;
-    --secondary-foreground: 30 10% 16%;
-    --muted: 36 18% 93%;
-    --muted-foreground: 30 6% 38%;
-    --accent: 36 20% 90%;
-    --accent-foreground: 30 10% 16%;
-    --destructive: 8 78% 52%;
-    --destructive-foreground: 40 30% 98%;
-    --border: 36 16% 87%;
-    --input: 36 16% 87%;
-    --ring: 28 30% 55%;
-    --brand: 170 56% 38%;
-    --brand-foreground: 40 30% 98%;
-    --radius: 0.55rem;
-  }
-
-  .dark {
-    --background: 30 10% 7%;
-    --foreground: 38 18% 94%;
-    --card: 30 10% 7%;
-    --card-foreground: 38 18% 94%;
-    --popover: 30 10% 8%;
-    --popover-foreground: 38 18% 94%;
-    --primary: 38 18% 94%;
-    --primary-foreground: 30 10% 10%;
-    --secondary: 30 8% 17%;
-    --secondary-foreground: 38 18% 94%;
-    --muted: 30 8% 15%;
-    --muted-foreground: 36 8% 70%;
-    --accent: 30 8% 17%;
-    --accent-foreground: 38 18% 94%;
-    --destructive: 8 64% 42%;
-    --destructive-foreground: 38 18% 94%;
-    --border: 30 8% 17%;
-    --input: 30 8% 17%;
-    --ring: 28 24% 60%;
-    --brand: 170 50% 46%;
-    --brand-foreground: 30 10% 10%;
+    --background: 228 14% 9%;
+    --foreground: 220 14% 91%;
+    --card: 228 13% 12%;
+    --card-foreground: 220 14% 91%;
+    --popover: 228 13% 13%;
+    --popover-foreground: 220 14% 91%;
+    --primary: 84 62% 56%;
+    --primary-foreground: 228 24% 9%;
+    --secondary: 228 9% 18%;
+    --secondary-foreground: 220 14% 91%;
+    --muted: 228 9% 16%;
+    --muted-foreground: 220 8% 58%;
+    --accent: 228 9% 21%;
+    --accent-foreground: 220 14% 93%;
+    --destructive: 2 64% 52%;
+    --destructive-foreground: 220 14% 95%;
+    --border: 228 9% 20%;
+    --input: 228 9% 23%;
+    --ring: 84 62% 50%;
+    --brand: 84 62% 56%;
+    --brand-foreground: 228 24% 9%;
+    --radius: 0.5rem;
   }
 }
 
@@ -70,6 +48,16 @@
   }
 }
 
+@layer components {
+  /* Dotted backdrop for the editing canvas area. */
+  .workbench-grid {
+    background-color: hsl(228 16% 7%);
+    background-image: radial-gradient(hsl(228 10% 26%) 1px, transparent 1px);
+    background-size: 22px 22px;
+    background-position: -11px -11px;
+  }
+}
+
 /* Direct-manipulation affordance for draggable stage elements. */
 .drag-box {
   cursor: move;
@@ -79,16 +67,16 @@
 }
 
 .drag-box:hover {
-  outline-color: rgba(31, 162, 140, 0.55);
+  outline-color: hsl(84 62% 56% / 0.55);
 }
 
 .drag-box:focus-within,
 .drag-box--selected {
-  outline-color: rgba(31, 162, 140, 0.9);
+  outline-color: hsl(84 62% 56% / 0.95);
   outline-style: solid;
 }
 
 .drag-box [contenteditable]:focus {
-  box-shadow: 0 0 0 2px rgba(31, 162, 140, 0.45);
+  box-shadow: 0 0 0 2px hsl(84 62% 56% / 0.45);
   border-radius: 2px;
 }

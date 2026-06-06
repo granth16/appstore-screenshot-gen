@@ -11,8 +11,8 @@ import type {
 import { asset } from "@/runtime/asset-cache";
 import { expandCapturePath, readCopy } from "@/text/copy";
 import { bannerWash, DecorBlob, sceneWash } from "./decor";
-import { bezelAspect, bezelFor } from "./bezels";
-import { boxFor, templateRects } from "./composition-rects";
+import { DeviceShell, shellFor, surfaceAspect } from "./device-shell";
+import { baseLayer, resolveBox, resolveLayout } from "./blueprints";
 import { CopyBlock } from "./copy-block";
 import { DraggableBox } from "./draggable-box";
 import { EditableText } from "./editable-text";
@@ -29,10 +29,7 @@ type RendererProps = {
   editable?: boolean;
   handlers?: SceneEditHandlers;
   selectedKey?: ElementKey | null;
-  // Stage scale (1.0 = full size) so react-rnd maps drag deltas through a
-  // CSS-transformed container correctly.
   stageScale?: number;
-  // Hide the "drop a capture" hint (so it doesn't bake into exports).
   hideEmpty?: boolean;
 };
 
@@ -51,22 +48,9 @@ export function SceneRenderer({
   hideEmpty,
 }: RendererProps) {
   const { w: canvasW, h: canvasH } = canvasSize(surface, orientation);
-  const capture = expandCapturePath(scene.capture, locale);
-  const captureEcho = expandCapturePath(scene.captureEcho, locale);
-  const { Bezel, widthFrac, smallWidthFrac } = bezelFor(surface, orientation);
-  const dark = !!scene.dark;
-  const frameAspect = bezelAspect(surface, orientation);
-  const rects = templateRects(
-    scene.composition,
-    canvasW,
-    canvasH,
-    frameAspect,
-    widthFrac(canvasW, canvasH),
-    smallWidthFrac(canvasW, canvasH),
-  );
 
-  // Banner (feature graphic) has its own self-contained composition.
-  if (scene.composition === "banner" || surface === "play-banner") {
+  // The Play feature banner is its own self-contained composition.
+  if (scene.composition === "marquee" || surface === "play-banner") {
     return (
       <BannerScene
         scene={scene}
@@ -81,14 +65,21 @@ export function SceneRenderer({
     );
   }
 
-  const copyRect = boxFor("copy", scene, rects);
-  const screenRect = boxFor("screen", scene, rects);
-  const echoRect = boxFor("screenEcho", scene, rects);
+  const capture = expandCapturePath(scene.capture, locale);
+  const captureEcho = expandCapturePath(scene.captureEcho, locale);
+  const shell = shellFor(surface, orientation);
+  const aspect = surfaceAspect(surface, orientation);
+  const dark = !!scene.dark;
+  const layout = resolveLayout(scene.composition, canvasW, canvasH, aspect);
 
-  function renderBezel(key: "screen" | "screenEcho", rect: PlacementRect, src: string, extra?: React.CSSProperties) {
+  const copyRect = resolveBox("copy", scene, layout);
+  const screenRect = resolveBox("screen", scene, layout);
+  const echoRect = resolveBox("screenEcho", scene, layout);
+
+  function renderDevice(key: "screen" | "screenEcho", rect: PlacementRect, src: string, extra?: React.CSSProperties) {
     const override = scene.boxes?.[key];
     const rotation = override?.rotation ?? 0;
-    const zIndex = override?.zIndex ?? (key === "screenEcho" ? 2 : 3);
+    const zIndex = override?.zIndex ?? baseLayer(key);
     return (
       <DraggableBox
         frame={rect}
@@ -98,13 +89,13 @@ export function SceneRenderer({
         stageScale={stageScale}
         rotation={rotation}
         onChange={(box) => handlers?.onBoxChange?.(key, { ...box, rotation, zIndex })}
-        lockAspectRatio={frameAspect}
+        lockAspectRatio={aspect}
         zIndex={zIndex}
         bleed
         selected={selectedKey === key}
         onSelect={() => handlers?.onSelect?.(key)}
       >
-        <Bezel src={src} hideEmpty={hideEmpty} style={{ width: "100%", height: "100%", ...extra }} />
+        <DeviceShell spec={shell} src={src} hideEmpty={hideEmpty} style={{ width: "100%", height: "100%", ...extra }} />
       </DraggableBox>
     );
   }
@@ -113,7 +104,7 @@ export function SceneRenderer({
     if (!copyRect) return null;
     const override = scene.boxes?.copy;
     const rotation = override?.rotation ?? 0;
-    const zIndex = override?.zIndex ?? 4;
+    const zIndex = override?.zIndex ?? baseLayer("copy");
     return (
       <DraggableBox
         frame={copyRect}
@@ -145,8 +136,7 @@ export function SceneRenderer({
     );
   }
 
-  // Clicking bare background deselects. Guard against bubbled child clicks.
-  const onBackgroundMouseDown = editable
+  const onBackdropMouseDown = editable
     ? (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget) handlers?.onSelect?.(null);
       }
@@ -154,7 +144,7 @@ export function SceneRenderer({
 
   return (
     <div
-      onMouseDown={onBackgroundMouseDown}
+      onMouseDown={onBackdropMouseDown}
       style={{
         width: "100%",
         height: "100%",
@@ -164,11 +154,11 @@ export function SceneRenderer({
         color: dark ? palette.inkOnDark : palette.ink,
       }}
     >
-      <DecorBlob canvasW={canvasW} color={palette.accent} x={-15} y={-10} size={55} opacity={dark ? 0.25 : 0.32} />
-      <DecorBlob canvasW={canvasW} color={palette.accent} x={70} y={75} size={45} opacity={dark ? 0.18 : 0.25} />
+      <DecorBlob canvasW={canvasW} color={palette.accent} x={78} y={-14} size={50} opacity={dark ? 0.22 : 0.3} />
+      <DecorBlob canvasW={canvasW} color={palette.accent} x={-22} y={62} size={52} opacity={dark ? 0.16 : 0.24} />
 
-      {echoRect && renderBezel("screenEcho", echoRect, captureEcho || capture, { opacity: 0.85 })}
-      {screenRect && renderBezel("screen", screenRect, capture)}
+      {echoRect && renderDevice("screenEcho", echoRect, captureEcho || capture, { opacity: 0.85 })}
+      {screenRect && renderDevice("screen", screenRect, capture)}
       {renderCopy()}
     </div>
   );
@@ -204,12 +194,12 @@ function BannerScene({
         background: bannerWash(palette),
         display: "flex",
         alignItems: "center",
-        padding: `0 ${canvasW * 0.06}px`,
+        padding: `0 ${canvasW * 0.07}px`,
         color: palette.inkOnDark,
       }}
     >
-      <DecorBlob canvasW={canvasW} color={palette.accent} x={70} y={20} size={50} opacity={0.45} />
-      <div style={{ display: "flex", alignItems: "center", gap: canvasW * 0.03, zIndex: 2 }}>
+      <DecorBlob canvasW={canvasW} color={palette.accent} x={64} y={18} size={52} opacity={0.42} />
+      <div style={{ display: "flex", alignItems: "center", gap: canvasW * 0.032, zIndex: 2 }}>
         {iconSrc ? (
           <img
             src={iconSrc}
@@ -217,8 +207,8 @@ function BannerScene({
             style={{
               width: canvasW * 0.13,
               height: canvasW * 0.13,
-              borderRadius: canvasW * 0.022,
-              boxShadow: "0 4px 16px rgba(0,0,0,0.3)",
+              borderRadius: canvasW * 0.024,
+              boxShadow: "0 4px 18px rgba(0,0,0,0.32)",
             }}
             draggable={false}
           />
@@ -228,22 +218,21 @@ function BannerScene({
             style={{
               width: canvasW * 0.13,
               height: canvasW * 0.13,
-              borderRadius: canvasW * 0.022,
+              borderRadius: canvasW * 0.024,
               background: `linear-gradient(135deg, ${palette.accent}55, ${palette.accent})`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              display: "grid",
+              placeItems: "center",
               color: palette.inkOnDark,
               fontWeight: 800,
               fontSize: canvasW * 0.07,
-              boxShadow: "0 4px 16px rgba(0,0,0,0.3)",
+              boxShadow: "0 4px 18px rgba(0,0,0,0.32)",
             }}
           >
             {(productName || "A").slice(0, 1).toUpperCase()}
           </div>
         )}
         <div>
-          <div style={{ fontSize: canvasW * 0.06, fontWeight: 800, lineHeight: 1.05 }}>
+          <div style={{ fontSize: canvasW * 0.062, fontWeight: 800, lineHeight: 1.05 }}>
             {productName || "App"}
           </div>
           <EditableText
@@ -252,7 +241,7 @@ function BannerScene({
             multiline
             onChange={handlers?.onHeadlineChange}
             style={{
-              fontSize: canvasW * 0.028,
+              fontSize: canvasW * 0.029,
               color: "rgba(255,255,255,0.85)",
               marginTop: canvasW * 0.012,
               lineHeight: 1.25,

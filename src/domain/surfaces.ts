@@ -83,3 +83,10 @@ export const SURFACES_BY_STORE: Record<Store, Surface[]> = {
   apple: ["ios-phone", "ios-tablet"],
   google: ["play-phone", "play-tablet-7", "play-tablet-10", "play-banner"],
 };
+
+// A single flat list of every surface (Apple first, then Google) for the
+// unified surface picker.
+export const SURFACE_ORDER: Surface[] = [
+  ...SURFACES_BY_STORE.apple,
+  ...SURFACES_BY_STORE.google,
+];

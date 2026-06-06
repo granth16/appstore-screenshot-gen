@@ -5,68 +5,76 @@
     "en"
   ],
   "locale": "en",
-  "surface": "play-tablet-10",
+  "surface": "ios-phone",
   "orientation": "portrait",
   "productIcon": "",
   "scenesBySurface": {
     "ios-phone": [
       {
-        "id": "sc_mpyeamer_0",
-        "composition": "spotlight",
+        "id": "sc_mq24nlfm_0",
+        "composition": "beacon",
         "label": {
           "en": "WELCOME"
         },
         "headline": {
           "en": "Everything you need,\nin one tap."
         },
-        "capture": "/captures/apple/ios-phone/{locale}/01.png"
+        "capture": "/captures/uploads/ff61e10aac9a1352.png",
+        "boxes": {
+          "screen": {
+            "width": 958,
+            "height": 2074,
+            "x": 212.76809971593707,
+            "y": 699.7646355049973,
+            "rotation": 0,
+            "zIndex": 2
+          },
+          "copy": {
+            "width": 1108.8,
+            "height": 745.6800000000001,
+            "x": 101.04038155802863,
+            "y": 100.4483942766295,
+            "rotation": 0,
+            "zIndex": 1
+          }
+        }
       },
       {
-        "id": "sc_mpyeamer_1",
-        "composition": "spotlight",
+        "id": "sc_mq24nlfm_1",
+        "composition": "plinth",
         "label": {
           "en": "HIGHLIGHT 01"
         },
         "headline": {
           "en": "Built to keep\nyou in flow."
         },
-        "capture": "",
-        "boxes": {
-          "screen": {
-            "width": 1013.6355043227666,
-            "height": 2064.96,
-            "x": 156.95593204914303,
-            "y": 739.1892631578947,
-            "rotation": 0,
-            "zIndex": 3
-          }
-        }
+        "capture": ""
       },
       {
-        "id": "sc_mpyeamer_2",
-        "composition": "anchored-crown",
+        "id": "sc_mq24nlfm_2",
+        "composition": "canopy",
         "label": {
-          "en": "nnnHIGHLIGHT 02"
+          "en": "HIGHLIGHT 02"
         },
         "headline": {
           "en": "Always a swipe away."
         },
-        "capture": "/captures/uploads/c8f6bb13b1387e7e.jpg",
+        "capture": "",
         "dark": true,
         "boxes": {
           "screen": {
-            "width": 1013.6355043227666,
-            "height": 2064.96,
-            "x": 145.6348794175642,
-            "y": 969.8368421052623,
+            "width": 795.0096,
+            "height": 1720.8,
+            "x": 301.6055152511416,
+            "y": 677.8869406392705,
             "rotation": 0,
             "zIndex": 3
           },
           "copy": {
-            "width": 1083,
-            "height": 2615,
-            "x": 139.56316222942985,
-            "y": 3.773684210526147,
+            "width": 1109,
+            "height": 2475,
+            "x": 144.88767230579762,
+            "y": 166.00456621004562,
             "rotation": 0,
             "zIndex": 4
           }
@@ -75,8 +83,8 @@
     ],
     "ios-tablet": [
       {
-        "id": "sc_mpyeamer_3",
-        "composition": "spotlight",
+        "id": "sc_mq24nlfm_3",
+        "composition": "beacon",
         "label": {
           "en": "WELCOME"
         },
@@ -86,8 +94,8 @@
         "capture": ""
       },
       {
-        "id": "sc_mpyeamer_4",
-        "composition": "side-by-side",
+        "id": "sc_mq24nlfm_4",
+        "composition": "column",
         "label": {
           "en": "HIGHLIGHT 01"
         },
@@ -99,19 +107,19 @@
     ],
     "play-phone": [
       {
-        "id": "sc_mpyeamer_5",
-        "composition": "spotlight",
+        "id": "sc_mq24nlfm_5",
+        "composition": "beacon",
         "label": {
           "en": "WELCOME"
         },
         "headline": {
           "en": "Everything you need,\nin one tap."
         },
-        "capture": "/captures/google/play-phone/{locale}/01.png"
+        "capture": ""
       },
       {
-        "id": "sc_mpyeamer_6",
-        "composition": "anchored-base",
+        "id": "sc_mq24nlfm_6",
+        "composition": "plinth",
         "label": {
           "en": "HIGHLIGHT 01"
         },
@@ -121,8 +129,8 @@
         "capture": ""
       },
       {
-        "id": "sc_mpyeamer_7",
-        "composition": "anchored-crown",
+        "id": "sc_mq24nlfm_7",
+        "composition": "canopy",
         "label": {
           "en": "HIGHLIGHT 02"
         },
@@ -135,8 +143,8 @@
     ],
     "play-tablet-7": [
       {
-        "id": "sc_mpyeamer_8",
-        "composition": "spotlight",
+        "id": "sc_mq24nlfm_8",
+        "composition": "beacon",
         "label": {
           "en": "WELCOME"
         },
@@ -146,8 +154,8 @@
         "capture": ""
       },
       {
-        "id": "sc_mpyeamer_9",
-        "composition": "side-by-side",
+        "id": "sc_mq24nlfm_9",
+        "composition": "column",
         "label": {
           "en": "HIGHLIGHT 01"
         },
@@ -159,29 +167,19 @@
     ],
     "play-tablet-10": [
       {
-        "id": "sc_mpyeamer_a",
-        "composition": "spotlight",
+        "id": "sc_mq24nlfm_a",
+        "composition": "beacon",
         "label": {
           "en": "WELCOME"
         },
         "headline": {
           "en": "Made for the\nbigger screen."
         },
-        "capture": "",
-        "boxes": {
-          "screen": {
-            "width": 1228.8,
-            "height": 1843.2,
-            "x": 209.178947368421,
-            "y": 673.2800000000003,
-            "rotation": 0,
-            "zIndex": 3
-          }
-        }
+        "capture": ""
       },
       {
-        "id": "sc_mpyeamer_b",
-        "composition": "side-by-side",
+        "id": "sc_mq24nlfm_b",
+        "composition": "column",
         "label": {
           "en": "HIGHLIGHT 01"
         },
@@ -193,8 +191,8 @@
     ],
     "play-banner": [
       {
-        "id": "sc_mpyeamer_c",
-        "composition": "banner",
+        "id": "sc_mq24nlfm_c",
+        "composition": "marquee",
         "label": {},
         "headline": {
           "en": "Your tagline goes here."

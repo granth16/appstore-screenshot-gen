@@ -2,9 +2,7 @@
 import * as React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Copy, GripVertical, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { COMPOSITION_NAME } from "@/domain/compositions";
+import { Copy, Trash2 } from "lucide-react";
 import { canvasSize } from "@/domain/surfaces";
 import type { Palette, Scene, StageOrientation, Surface } from "@/domain/types";
 import { readCopy } from "@/text/copy";
@@ -26,8 +24,9 @@ type Props = {
   onDuplicate: () => void;
 };
 
-// Preview tile width in pixels; height follows the surface aspect.
-const TILE_WIDTH = 60;
+// Filmstrip thumbnail sizing: fit inside this box without distorting aspect.
+const TILE_HEIGHT = 80;
+const TILE_MAX_WIDTH = 150;
 
 export function SceneTile({
   scene,
@@ -44,15 +43,14 @@ export function SceneTile({
   onDuplicate,
 }: Props) {
   const headline = readCopy(scene.headline, locale);
-  const label = readCopy(scene.label, locale);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: scene.id,
   });
 
   const { w: canvasW, h: canvasH } = canvasSize(surface, orientation);
-  const aspect = canvasW / canvasH;
-  const tileHeight = Math.max(34, Math.min(120, Math.round(TILE_WIDTH / aspect)));
-  const previewScale = TILE_WIDTH / canvasW;
+  const fit = Math.min(TILE_HEIGHT / canvasH, TILE_MAX_WIDTH / canvasW);
+  const thumbW = Math.round(canvasW * fit);
+  const thumbH = Math.round(canvasH * fit);
 
   const sortStyle: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -60,98 +58,86 @@ export function SceneTile({
     opacity: isDragging ? 0.5 : 1,
   };
 
-  return (
-    <div
-      ref={setNodeRef}
-      style={sortStyle}
-      className={cn(
-        "group relative flex items-stretch gap-2 rounded-lg border bg-card p-1.5 transition-all hover:border-foreground/30 hover:bg-accent",
-        active && "border-primary ring-1 ring-primary",
-      )}
-    >
-      <button
-        type="button"
-        className="flex w-3 cursor-grab items-center justify-center text-muted-foreground/60 hover:text-foreground focus-visible:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring active:cursor-grabbing"
-        {...attributes}
-        {...listeners}
-        aria-label={`Reorder scene ${index + 1} (space, then arrows)`}
-      >
-        <GripVertical className="h-4 w-4" />
-      </button>
+  const stopBubble = (e: React.MouseEvent) => e.stopPropagation();
 
+  return (
+    <div ref={setNodeRef} style={sortStyle} className="group relative shrink-0">
       <button
         type="button"
         onClick={onSelect}
-        className="flex flex-1 items-center gap-3 overflow-hidden text-left"
+        {...attributes}
+        {...listeners}
+        title={headline.split("\n")[0] || `Frame ${index + 1}`}
+        aria-label={`Frame ${index + 1}`}
+        className={cn(
+          "relative block cursor-grab overflow-hidden rounded-lg border bg-black/60 transition-all active:cursor-grabbing",
+          active
+            ? "border-brand ring-2 ring-brand"
+            : "border-border hover:border-foreground/40",
+        )}
+        style={{ width: thumbW, height: thumbH }}
       >
         <div
-          className="relative shrink-0 overflow-hidden rounded border bg-muted"
-          style={{ width: TILE_WIDTH, height: tileHeight }}
+          style={{
+            width: canvasW,
+            height: canvasH,
+            position: "absolute",
+            top: 0,
+            left: 0,
+            transformOrigin: "top left",
+            transform: `scale(${fit})`,
+            pointerEvents: "none",
+          }}
         >
-          <div
-            style={{
-              width: canvasW,
-              height: canvasH,
-              position: "absolute",
-              top: 0,
-              left: 0,
-              transformOrigin: "top left",
-              transform: `scale(${previewScale})`,
-              pointerEvents: "none",
-            }}
-          >
-            <SceneRenderer
-              scene={scene}
-              surface={surface}
-              orientation={orientation}
-              palette={palette}
-              locale={locale}
-              productName={productName}
-              productIcon={productIcon}
-              editable={false}
-            />
-          </div>
+          <SceneRenderer
+            scene={scene}
+            surface={surface}
+            orientation={orientation}
+            palette={palette}
+            locale={locale}
+            productName={productName}
+            productIcon={productIcon}
+            editable={false}
+          />
         </div>
-        <div className="flex min-w-0 flex-1 flex-col">
-          <span className="truncate text-[10px] uppercase tracking-wide text-muted-foreground">
-            {`Scene ${index + 1} · ${COMPOSITION_NAME[scene.composition]}`}
-          </span>
-          <span className="truncate text-sm font-medium leading-tight">
-            {headline.split("\n")[0] || (
-              <em className="font-normal text-muted-foreground">Untitled</em>
-            )}
-          </span>
-          {label ? (
-            <span className="truncate text-[10px] uppercase tracking-wide text-muted-foreground">
-              {label}
-            </span>
-          ) : null}
-        </div>
+
+        <span
+          className={cn(
+            "pointer-events-none absolute bottom-1 left-1 grid h-4 min-w-4 place-items-center rounded px-1 text-[9px] font-bold tabular-nums",
+            active ? "bg-brand text-brand-foreground" : "bg-black/70 text-white/90",
+          )}
+        >
+          {index + 1}
+        </span>
       </button>
 
-      <div className="flex flex-col items-center justify-center gap-0.5 opacity-60 transition-opacity focus-within:opacity-100 group-hover:opacity-100 md:opacity-0">
-        <Button
+      <div className="absolute right-1 top-1 flex gap-0.5 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+        <button
           type="button"
-          scale="icon"
-          tone="quiet"
-          className="h-6 w-6"
-          onClick={onDuplicate}
-          aria-label={`Duplicate scene ${index + 1}`}
-          title="Duplicate scene"
+          onClick={(e) => {
+            stopBubble(e);
+            onDuplicate();
+          }}
+          onPointerDown={stopBubble}
+          className="grid h-5 w-5 place-items-center rounded bg-black/70 text-white/85 hover:bg-black hover:text-white"
+          aria-label={`Duplicate frame ${index + 1}`}
+          title="Duplicate"
         >
-          <Copy className="h-3.5 w-3.5" />
-        </Button>
-        <Button
+          <Copy className="h-3 w-3" />
+        </button>
+        <button
           type="button"
-          scale="icon"
-          tone="quiet"
-          className="h-6 w-6 hover:text-destructive"
-          onClick={onDelete}
-          aria-label={`Delete scene ${index + 1}`}
-          title="Delete scene (undoable)"
+          onClick={(e) => {
+            stopBubble(e);
+            onDelete();
+          }}
+          onPointerDown={stopBubble}
+          className="grid h-5 w-5 place-items-center rounded bg-black/70 text-white/85 hover:bg-destructive hover:text-destructive-foreground"
+          aria-label={`Delete frame ${index + 1}`}
+          title="Delete (undoable)"
         >
-          <Trash2 className="h-3.5 w-3.5" />
-        </Button>
+          <Trash2 className="h-3 w-3" />
+        </button>
       </div>
     </div>
   );

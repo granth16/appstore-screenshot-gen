@@ -3,7 +3,6 @@ import * as React from "react";
 import { ArrowDownToLine, ArrowUpToLine, ChevronDown, ChevronUp, RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -15,7 +14,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { COMPOSITION_HINT, COMPOSITION_NAME, COMPOSITION_ORDER } from "@/domain/compositions";
 import type { BoxTransform, Composition, ElementKey, Scene } from "@/domain/types";
 import { editCopy, readCopy } from "@/text/copy";
-import { defaultZ } from "./canvas/composition-rects";
+import { cn } from "@/utils/cn";
+import { baseLayer } from "./canvas/blueprints";
 import { MediaDropField } from "./media-drop-field";
 
 type Props = {
@@ -31,9 +31,49 @@ const ELEMENT_NAME: Record<ElementKey, string> = {
   screenEcho: "Back device",
 };
 
+// A two-column property row: caption on the left, control on the right. This
+// replaces the usual stacked "label over input" form pattern.
+function Field({
+  label,
+  hint,
+  alignTop,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  alignTop?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={cn(
+        "grid grid-cols-[72px_minmax(0,1fr)] gap-x-3",
+        alignTop ? "items-start" : "items-center",
+      )}
+    >
+      <div className={cn("text-right", alignTop && "pt-2")}>
+        <div className="text-[11px] font-medium text-muted-foreground">{label}</div>
+        {hint && <div className="text-[9px] leading-tight text-muted-foreground/60">{hint}</div>}
+      </div>
+      <div className="min-w-0">{children}</div>
+    </div>
+  );
+}
+
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-2 pt-1">
+      <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+        {children}
+      </span>
+      <span className="h-px flex-1 bg-border" />
+    </div>
+  );
+}
+
 export function InspectorPanel({ scene, locale, selectedKey, onChange }: Props) {
-  const isBanner = scene.composition === "banner";
-  const isTypeOnly = scene.composition === "type-only";
+  const isBanner = scene.composition === "marquee";
+  const isTypeOnly = scene.composition === "manifesto";
   const localeLabel = scene.label?.[locale] ?? "";
   const localeHeadline = scene.headline?.[locale] ?? "";
   const headlineFallback = isBanner ? "Your tagline." : "One idea\nper scene.";
@@ -48,19 +88,14 @@ export function InspectorPanel({ scene, locale, selectedKey, onChange }: Props) 
 
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b p-3">
-        <div className="flex items-baseline justify-between gap-2">
-          <h2 className="text-sm font-semibold">Scene settings</h2>
-          <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
-            editing · {locale.toUpperCase()}
-          </span>
-        </div>
-        <p className="text-xs text-muted-foreground">{COMPOSITION_HINT[scene.composition]}</p>
+      <div className="flex items-center justify-between gap-2 px-3 pb-1 pt-3">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          Frame · {locale.toUpperCase()}
+        </span>
       </div>
 
-      <div className="flex-1 space-y-4 overflow-y-auto p-3">
-        <div className="space-y-1.5">
-          <Label className="text-xs">Composition</Label>
+      <div className="flex-1 space-y-3 overflow-y-auto p-3 pt-1">
+        <Field label="Layout">
           <Select
             value={scene.composition}
             onValueChange={(value) => {
@@ -68,11 +103,11 @@ export function InspectorPanel({ scene, locale, selectedKey, onChange }: Props) 
               onChange({
                 composition: next,
                 boxes: undefined,
-                captureEcho: next === "stacked-pair" ? scene.captureEcho || scene.capture : undefined,
+                captureEcho: next === "duet" ? scene.captureEcho || scene.capture : undefined,
               });
             }}
           >
-            <SelectTrigger>
+            <SelectTrigger className="h-8 text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -83,62 +118,59 @@ export function InspectorPanel({ scene, locale, selectedKey, onChange }: Props) 
               ))}
             </SelectContent>
           </Select>
-        </div>
+        </Field>
+
+        <p className="pl-[84px] text-[10px] leading-snug text-muted-foreground/70">
+          {COMPOSITION_HINT[scene.composition]}
+        </p>
+
+        <SectionTitle>Copy</SectionTitle>
 
         {!isBanner && (
-          <div className="space-y-1.5">
-            <Label className="text-xs">Label</Label>
+          <Field label="Eyebrow">
             <Input
               value={localeLabel}
               onChange={(e) => writeField("label", e.target.value)}
               placeholder={labelPlaceholder}
+              className="h-8 text-xs"
             />
-          </div>
+          </Field>
         )}
 
-        <div className="space-y-1.5">
-          <div className="flex items-baseline justify-between">
-            <Label className="text-xs">{isBanner ? "Tagline" : "Headline"}</Label>
-            <span className="text-[10px] text-muted-foreground">newline = break</span>
-          </div>
+        <Field label={isBanner ? "Tagline" : "Headline"} hint="newline = break" alignTop>
           <Textarea
             value={localeHeadline}
             onChange={(e) => writeField("headline", e.target.value)}
             rows={3}
             placeholder={headlinePlaceholder}
+            className="text-xs"
           />
-        </div>
+        </Field>
 
         {!isBanner && !isTypeOnly && (
-          <div className="space-y-1.5">
-            <Label className="text-xs">
-              {scene.composition === "stacked-pair" ? "Front device capture" : "Capture"}
-            </Label>
+          <>
+            <SectionTitle>Artwork</SectionTitle>
             <MediaDropField
-              label="Primary"
+              label={scene.composition === "duet" ? "Front capture" : "Capture"}
               value={scene.capture}
               onChange={(value) => onChange({ capture: value })}
             />
-          </div>
-        )}
-
-        {scene.composition === "stacked-pair" && (
-          <div className="space-y-1.5">
-            <Label className="text-xs">Back device capture</Label>
-            <MediaDropField
-              label="Secondary (back layer)"
-              value={scene.captureEcho || ""}
-              onChange={(value) => onChange({ captureEcho: value })}
-            />
-          </div>
+            {scene.composition === "duet" && (
+              <MediaDropField
+                label="Back capture"
+                value={scene.captureEcho || ""}
+                onChange={(value) => onChange({ captureEcho: value })}
+              />
+            )}
+          </>
         )}
 
         {!isBanner && <BoxControls scene={scene} selectedKey={selectedKey} onChange={onChange} />}
 
         {isBanner && (
           <p className="rounded-md border bg-muted/40 p-3 text-[11px] leading-relaxed text-muted-foreground">
-            Shows the product icon + name + tagline. Set an icon path in the toolbar (or leave it
-            blank to use the product initial). The name comes from the command bar.
+            Renders the product icon, name and tagline. The name comes from the Project panel; leave
+            the icon blank to fall back to the product&apos;s initial.
           </p>
         )}
       </div>
@@ -156,8 +188,8 @@ function BoxControls({
   onChange: (patch: Partial<Scene>) => void;
 }) {
   const present: ElementKey[] = ["copy"];
-  if (scene.composition !== "type-only") present.push("screen");
-  if (scene.composition === "stacked-pair") present.push("screenEcho");
+  if (scene.composition !== "manifesto") present.push("screen");
+  if (scene.composition === "duet") present.push("screenEcho");
 
   const boxes = scene.boxes || {};
   const activeKey = selectedKey && present.includes(selectedKey) ? selectedKey : null;
@@ -171,7 +203,7 @@ function BoxControls({
   // Re-rank zIndex among present elements so they stay contiguous.
   function restack(key: ElementKey, dir: "front" | "back" | "up" | "down") {
     const ordered = [...present].sort(
-      (a, b) => (boxes[a]?.zIndex ?? defaultZ(a)) - (boxes[b]?.zIndex ?? defaultZ(b)),
+      (a, b) => (boxes[a]?.zIndex ?? baseLayer(a)) - (boxes[b]?.zIndex ?? baseLayer(b)),
     );
     const at = ordered.indexOf(key);
     if (at === -1) return;
@@ -193,16 +225,8 @@ function BoxControls({
   }
 
   return (
-    <div className="space-y-3 rounded-md border bg-muted/30 p-3">
-      <div>
-        <Label className="text-xs font-semibold">Elements</Label>
-        <p className="text-[11px] text-muted-foreground">
-          {activeKey
-            ? "Fine-tune the selected element's rotation and stacking."
-            : "Click an element on the stage to fine-tune its rotation and stacking."}
-        </p>
-      </div>
-
+    <>
+      <SectionTitle>Selection</SectionTitle>
       {activeKey ? (
         <ActiveBoxPanel
           activeKey={activeKey}
@@ -211,11 +235,11 @@ function BoxControls({
           onRestack={(dir) => restack(activeKey, dir)}
         />
       ) : (
-        <div className="rounded border border-dashed bg-background/40 p-4 text-center text-[11px] text-muted-foreground">
-          No element selected
-        </div>
+        <p className="rounded-md border border-dashed bg-background/40 px-3 py-4 text-center text-[11px] text-muted-foreground">
+          Click an element on the stage to adjust its rotation and stacking.
+        </p>
       )}
-    </div>
+    </>
   );
 }
 
@@ -235,34 +259,30 @@ function ActiveBoxPanel({
   const name = ELEMENT_NAME[activeKey];
 
   return (
-    <div className="space-y-2 rounded border bg-background/60 p-2.5">
+    <div className="space-y-2 rounded-md border bg-background/60 p-2.5">
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium">{name}</span>
         {!engaged && <span className="text-[10px] text-muted-foreground">drag to enable</span>}
       </div>
 
-      <div className="space-y-1">
-        <div className="flex items-center justify-between">
-          <Label className="flex items-center gap-1 text-[11px] text-muted-foreground">
-            <RotateCw className="h-3 w-3" /> Rotation
-          </Label>
-          <span className="text-[11px] tabular-nums text-muted-foreground">{rotation}°</span>
+      <Field label={`${rotation}°`}>
+        <div className="flex items-center gap-2">
+          <RotateCw className="h-3 w-3 shrink-0 text-muted-foreground" />
+          <input
+            type="range"
+            min={-180}
+            max={180}
+            step={1}
+            value={rotation}
+            disabled={!engaged}
+            onChange={(e) => onRotate(Number(e.target.value))}
+            className="w-full disabled:opacity-50"
+            aria-label={`${name} rotation`}
+          />
         </div>
-        <input
-          type="range"
-          min={-180}
-          max={180}
-          step={1}
-          value={rotation}
-          disabled={!engaged}
-          onChange={(e) => onRotate(Number(e.target.value))}
-          className="w-full disabled:opacity-50"
-          aria-label={`${name} rotation`}
-        />
-      </div>
+      </Field>
 
-      <div className="space-y-1">
-        <Label className="text-[11px] text-muted-foreground">Layer</Label>
+      <Field label="Layer">
         <div className="grid grid-cols-4 gap-1">
           <StackButton disabled={!engaged} onClick={() => onRestack("back")} label="Send to back">
             <ArrowDownToLine className="h-3.5 w-3.5" />
@@ -277,7 +297,7 @@ function ActiveBoxPanel({
             <ArrowUpToLine className="h-3.5 w-3.5" />
           </StackButton>
         </div>
-      </div>
+      </Field>
     </div>
   );
 }
