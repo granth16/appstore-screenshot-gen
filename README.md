@@ -21,19 +21,7 @@ size. Everything runs on your machine — no account, no upload, no cloud.
 
 ## Run It Two Ways
 
-**1. As a normal app — clone and run.** No agent required:
-
-```bash
-git clone https://github.com/granth16/appstore-screenshot-gen
-cd appstore-screenshot-gen/skills/storeshots/template
-npm install
-npm run dev
-```
-
-Then open [http://localhost:3000](http://localhost:3000). Full product docs live in
-[`skills/storeshots/template/README.md`](./skills/storeshots/template/README.md).
-
-**2. As an agent skill.** Install it into your coding agent with the
+**1. As an agent skill.** Install it into your coding agent with the
 [`skills`](https://skills.sh) CLI:
 
 ```bash
@@ -44,6 +32,18 @@ npx skills add granth16/appstore-screenshot-gen -a cursor  # one agent
 
 Compatible with Cursor, Claude Code, Windsurf, Codex, OpenCode, and the other agents the
 `skills` CLI supports. The skill itself lives in [`skills/storeshots`](./skills/storeshots).
+
+**2. As a normal app — clone and run.** No agent required:
+
+```bash
+git clone https://github.com/granth16/appstore-screenshot-gen
+cd appstore-screenshot-gen/skills/storeshots/template
+npm install
+npm run dev
+```
+
+Then open [http://localhost:3000](http://localhost:3000). Full product docs live in
+[`skills/storeshots/template/README.md`](./skills/storeshots/template/README.md).
 
 ## Inside The Studio
 
