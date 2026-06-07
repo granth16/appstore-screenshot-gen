@@ -1,9 +1,10 @@
 # StoreShots — Play Store and App Store Screenshots Generator
 
-A skill for AI coding agents (and a ready-to-run app) that scaffolds a local-first Next.js studio
-for **App Store** and **Google Play** listing screenshots. It gives you a live canvas, CSS-drawn
-device frames, an inspector, per-locale copy, persistent project state, and one-click export
-bundles at every store-required size.
+StoreShots is an open-source screenshot studio for shipping better **App Store** and
+**Google Play** listing creatives. It hands you (or your coding agent) a ready-made, local-first
+Next.js workspace where raw app captures become polished marketing frames — with a live stage,
+CSS-rendered device shells, an inspector, per-locale copy, autosaved project state, and
+one-tap export bundles at every size the stores require.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-97D94A.svg)](./LICENSE)
 
@@ -13,15 +14,15 @@ bundles at every store-required size.
 
 ## What It Does
 
-- Builds a full screenshot **editor**, not a static one-off page.
-- Turns raw app captures into ad-style frames with big, readable copy.
-- Composes each frame from a copy block + one or two device shells using named layouts.
-- Keeps a separate deck of frames per store surface, so switching surfaces never loses work.
-- Stores copy per locale for multi-language screenshot sets.
-- Saves every deck to `storeshots.project.json` (git-trackable) and mirrors to `localStorage`.
-- Uploads picked screenshots into `public/captures/uploads/<hash>.png`.
-- Supports iPhone, iPad, Android phone, Android 7"/10" tablets, and the Play feature graphic.
-- Exports exact PNG bundles for all required App Store and Google Play sizes.
+- Spins up a real screenshot **studio** instead of a one-off static page.
+- Reframes plain product captures into launch-ready marketing frames with bold headlines.
+- Builds each frame from a copy block plus one or two device shells via reusable compositions.
+- Holds an independent deck of frames per store surface, so flipping surfaces never drops work.
+- Tracks copy per locale, so a single project can carry several language sets.
+- Persists each deck to `storeshots.project.json` (git-trackable) with a `localStorage` mirror.
+- Saves dropped-in captures to `public/captures/uploads/<hash>.png`.
+- Covers iPhone, iPad, Android phone, Android 7"/10" tablets, and the Play feature graphic.
+- Renders exact PNG bundles for every required App Store and Google Play size.
 
 ## Install (as a skill)
 
@@ -56,42 +57,42 @@ The skill lives in [`skills/storeshots`](./skills/storeshots).
 
 ## Usage
 
-Once installed, ask your coding agent for store screenshots:
+After installing, just tell your coding agent what you need:
 
 ```
 Build App Store and Google Play screenshots for my app.
 ```
 
-The skill asks for your app context, source screenshots, surfaces, locales, visual direction,
-and frame count, then scaffolds the editor project and starts it.
+It collects your app context, source captures, target surfaces, locales, visual direction,
+and how many frames you want — then scaffolds the studio and launches it.
 
 ### Example Prompts
 
 ```
-Build App Store screenshots for my habit tracker.
-It helps people stay consistent with simple daily routines.
-6 frames, clean minimal style, warm neutrals.
+Make App Store screenshots for my habit tracker.
+The app keeps people consistent with small daily routines.
+6 frames, calm minimal look, soft neutral tones.
 ```
 
 ```
-Generate App Store + Play screenshots for my finance app.
-Strengths: fast expense capture, clear monthly trends, shared budgets.
-Sharp, high-contrast style, 7 frames.
+Spin up App Store + Play screenshots for my budgeting app.
+Highlight quick expense entry, monthly trend views, and shared budgets.
+Crisp high-contrast direction, 7 frames.
 ```
 
 ```
-Build screenshots for my language app in English and German.
-Lead with the core outcome, vary device placement across frames.
+Create screenshots for my language app, English and German.
+Open on the main payoff and shift the device placement frame to frame.
 ```
 
-### Better Prompt Tips
+### Tips For Sharper Output
 
-- Say what the app does in one sentence.
-- List the top 3–5 features in priority order.
-- Mention the surfaces and locales you need.
-- Describe the visual style (maps to a palette: ink, frost, clay, lagoon).
-- Say how many frames you want.
-- Provide source screenshot paths and an app icon if you have them.
+- Pin down what the app does in a single sentence.
+- Rank the 3–5 features that matter most (each becomes a frame).
+- Call out the surfaces and locales you actually need.
+- Name the mood you want — it maps to a palette: ink, frost, clay, or lagoon.
+- State a target frame count.
+- Hand over capture paths and an app icon when you have them.
 
 ## Prefer to just run the app?
 

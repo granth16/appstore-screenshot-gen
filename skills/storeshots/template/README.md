@@ -14,7 +14,7 @@ Demo video coming soon. For now, clone the repo, run it locally, and try the edi
 
 ## What It Does
 
-- Turns raw app captures into polished, ad-style store screenshots with large, readable copy.
+- Reframes plain product captures into polished, launch-ready store frames with bold, readable copy.
 - Composes each frame on a live canvas with device mockups, headlines, eyebrows, and artwork.
 - Keeps a separate deck of frames for every store surface, so switching surfaces never loses work.
 - Stores copy per locale, so you can build multiple language sets from one project.

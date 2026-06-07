@@ -1,29 +1,29 @@
 ---
 name: storeshots
-description: Use when a user wants App Store or Google Play listing screenshots, store marketing images, or a screenshot editor for an iOS/Android app. Scaffolds a ready-to-run Next.js studio (StoreShots) that composes device mockups + marketing copy and exports every required store size as a zip. Triggers on app store screenshots, play store screenshots, listing images, store marketing assets, feature graphic, app screenshot generator, screenshot editor.
+description: Use when someone needs App Store or Google Play listing screenshots, store marketing imagery, or a screenshot studio for an iOS/Android app. Stands up a ready-to-run Next.js studio (StoreShots) that pairs CSS device shells with marketing copy and exports every required store size as a zip. Triggers on app store screenshots, play store screenshots, listing images, store marketing assets, feature graphic, app screenshot generator, screenshot editor.
 ---
 
 # StoreShots — App Store & Google Play Screenshot Studio
 
 ## Overview
 
-Scaffold a pre-built, local-first Next.js studio that lets the user design and export
-**App Store** and **Google Play** listing screenshots. Screenshots are treated as
-**advertisements**, not UI dumps — each frame sells one clear outcome with a large headline,
-an optional eyebrow, and a device mockup.
+Stand up a pre-built, local-first Next.js studio so the user can design and ship
+**App Store** and **Google Play** listing screenshots. Think of every frame as a tiny ad:
+it should land one clear payoff with a strong headline, an optional eyebrow line, and a
+device mockup — not a raw UI screenshot.
 
-The editor already handles all the hard parts:
+The studio already ships with the hard parts solved:
 
-- A live canvas at the surface's true resolution, scaled to fit.
-- CSS-drawn device shells (no image bezels) for iPhone, iPad, and Android phones/tablets.
-- Drag / resize / rotate of copy and device on the canvas; layer + rotation controls.
-- A storyboard of frames per surface with drag-to-reorder, duplicate, and delete.
-- Per-locale copy, so one project can hold multiple language sets.
-- Local-first autosave: `localStorage` for instant paint + a `storeshots.project.json` on disk.
+- A live stage rendered at the surface's true resolution and scaled to fit.
+- CSS-rendered device shells (no PNG bezels) for iPhone, iPad, and Android phones/tablets.
+- Drag, resize, and rotate for copy and devices, plus layering and rotation controls.
+- A per-surface storyboard with drag-to-reorder, duplicate, and delete.
+- Per-locale copy so one project can carry several language sets.
+- Local-first autosave: instant paint from `localStorage` plus a `storeshots.project.json` on disk.
 - Drop-to-upload captures (`POST /api/media` → `public/captures/uploads/<hash>.png`).
-- One-click bulk export to a zip of deterministic PNGs at every required store size.
+- One-tap bulk export to a zip of deterministic PNGs at every required store size.
 
-Supported surfaces out of the box:
+Surfaces available out of the box:
 
 - **iPhone** (portrait) — App Store
 - **iPad** (portrait) — App Store
@@ -34,21 +34,21 @@ Supported surfaces out of the box:
 
 ## Core Principle
 
-**Screenshots are advertisements, not documentation.** Every frame should sell one idea — an
-outcome, a feeling, or the removal of a pain point. Use the editor to iterate on copy and
-layout fast. Do **not** hand-build `page.tsx`, device frames, or export logic — they already
-live in the template.
+**A store screenshot is a pitch, not a manual.** Each frame should carry exactly one idea —
+a payoff, a feeling, or a pain point removed. Lean on the studio to iterate on copy and layout
+quickly, and don't hand-build `page.tsx`, the device shells, or the export pipeline — they are
+already in the template.
 
 ## What This Skill Does
 
-1. Copies the pre-built app from `template/` (next to this `SKILL.md`) into the user's working directory.
+1. Copies the pre-built app from `template/` (alongside this `SKILL.md`) into the user's working directory.
 2. Installs dependencies with the user's package manager.
-3. Drops the user's screenshots into `public/captures/...` and their app icon into `public/`.
-4. (Optionally) prefills `storeshots.project.json` with the user's product name, starting copy,
-   and capture paths so the first preview is meaningful.
-5. Starts the dev server and tells the user to open the editor in the browser.
+3. Places the user's screenshots under `public/captures/...` and their app icon in `public/`.
+4. (Optionally) seeds `storeshots.project.json` with the user's product name, starter copy,
+   and capture paths so the first load already shows something real.
+5. Boots the dev server and points the user to the editor in their browser.
 
-You should NOT rewrite the editor, device shells, layout blueprints, or export pipeline by hand.
+Do NOT re-implement the editor, device shells, layout blueprints, or export pipeline by hand.
 
 ## Step 0: Probe for an Existing StoreShots Project
 
