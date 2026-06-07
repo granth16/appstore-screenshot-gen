@@ -1,4 +1,4 @@
-# StoreShots
+# StoreShots — Play Store and App Store Screenshots Generator
 
 A skill for AI coding agents (and a ready-to-run app) that scaffolds a local-first Next.js studio
 for **App Store** and **Google Play** listing screenshots. It gives you a live canvas, CSS-drawn
