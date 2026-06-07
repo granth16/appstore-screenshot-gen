@@ -7,6 +7,11 @@ bundles at every store-required size.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-97D94A.svg)](./LICENSE)
 
+## Demo
+
+<video src="./assets/storeshotsdemo.mp4" controls width="100%"></video>
+
+[Watch the demo video](./assets/storeshotsdemo.mp4)
 
 ## What It Does
 
