@@ -15,3 +15,5 @@ node_modules/
 
 # scaffolded user projects (skill output)
 /projects/
+.agents/
+skills-lock.json
