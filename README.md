@@ -9,9 +9,7 @@ bundles at every store-required size.
 
 ## Demo
 
-<video src="./assets/storeshotsdemo.mp4" controls width="100%"></video>
-
-[Watch the demo video](./assets/storeshotsdemo.mp4)
+![StoreShots demo screenshot](./assets/storeshots-demo.png)
 
 ## What It Does
 
