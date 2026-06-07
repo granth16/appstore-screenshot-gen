@@ -12,91 +12,16 @@ one-tap export bundles at every size the stores require.
 
 ![StoreShots demo screenshot](./assets/storeshots-demo.png)
 
-## What It Does
+## Why StoreShots
 
-- Spins up a real screenshot **studio** instead of a one-off static page.
-- Reframes plain product captures into launch-ready marketing frames with bold headlines.
-- Builds each frame from a copy block plus one or two device shells via reusable compositions.
-- Holds an independent deck of frames per store surface, so flipping surfaces never drops work.
-- Tracks copy per locale, so a single project can carry several language sets.
-- Persists each deck to `storeshots.project.json` (git-trackable) with a `localStorage` mirror.
-- Saves dropped-in captures to `public/captures/uploads/<hash>.png`.
-- Covers iPhone, iPad, Android phone, Android 7"/10" tablets, and the Play feature graphic.
-- Renders exact PNG bundles for every required App Store and Google Play size.
+Most "screenshot generators" hand you a single template you fight against. StoreShots gives you
+a real editor instead: a stage you can drag on, reusable **compositions** for arranging copy and
+devices, swappable **palettes** for mood, and exporters that already know every Apple and Google
+size. Everything runs on your machine — no account, no upload, no cloud.
 
-## Install (as a skill)
+## Run It Two Ways
 
-Using the [`skills`](https://skills.sh) CLI:
-
-```bash
-npx skills add granth16/appstore-screenshot-gen
-```
-
-Install globally:
-
-```bash
-npx skills add granth16/appstore-screenshot-gen -g
-```
-
-Install for a specific agent:
-
-```bash
-npx skills add granth16/appstore-screenshot-gen -a cursor
-```
-
-Works with Cursor, Claude Code, Windsurf, Codex, OpenCode, and other agents supported by the
-`skills` CLI.
-
-### Manual install
-
-```bash
-git clone https://github.com/granth16/appstore-screenshot-gen
-```
-
-The skill lives in [`skills/storeshots`](./skills/storeshots).
-
-## Usage
-
-After installing, just tell your coding agent what you need:
-
-```
-Build App Store and Google Play screenshots for my app.
-```
-
-It collects your app context, source captures, target surfaces, locales, visual direction,
-and how many frames you want — then scaffolds the studio and launches it.
-
-### Example Prompts
-
-```
-Make App Store screenshots for my habit tracker.
-The app keeps people consistent with small daily routines.
-6 frames, calm minimal look, soft neutral tones.
-```
-
-```
-Spin up App Store + Play screenshots for my budgeting app.
-Highlight quick expense entry, monthly trend views, and shared budgets.
-Crisp high-contrast direction, 7 frames.
-```
-
-```
-Create screenshots for my language app, English and German.
-Open on the main payoff and shift the device placement frame to frame.
-```
-
-### Tips For Sharper Output
-
-- Pin down what the app does in a single sentence.
-- Rank the 3–5 features that matter most (each becomes a frame).
-- Call out the surfaces and locales you actually need.
-- Name the mood you want — it maps to a palette: ink, frost, clay, or lagoon.
-- State a target frame count.
-- Hand over capture paths and an app icon when you have them.
-
-## Prefer to just run the app?
-
-You don't need an agent. The editor is a normal Next.js app:
+**1. As a normal app — clone and run.** No agent required:
 
 ```bash
 git clone https://github.com/granth16/appstore-screenshot-gen
@@ -105,9 +30,75 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). See
-[`skills/storeshots/template/README.md`](./skills/storeshots/template/README.md) for the full
-product docs (editor UI, compositions, export sizes, project state, tech stack).
+Then open [http://localhost:3000](http://localhost:3000). Full product docs live in
+[`skills/storeshots/template/README.md`](./skills/storeshots/template/README.md).
+
+**2. As an agent skill.** Install it into your coding agent with the
+[`skills`](https://skills.sh) CLI:
+
+```bash
+npx skills add granth16/appstore-screenshot-gen          # this project
+npx skills add granth16/appstore-screenshot-gen -g       # global
+npx skills add granth16/appstore-screenshot-gen -a cursor  # one agent
+```
+
+Compatible with Cursor, Claude Code, Windsurf, Codex, OpenCode, and the other agents the
+`skills` CLI supports. The skill itself lives in [`skills/storeshots`](./skills/storeshots).
+
+## Inside The Studio
+
+- A live stage rendered at the surface's real resolution and scaled to fit your screen.
+- CSS-rendered device shells (no PNG bezels) for iPhone, iPad, and Android phones/tablets.
+- Direct manipulation — drag, resize, rotate copy and devices, with layer and rotation controls.
+- A per-surface storyboard you can reorder, duplicate, and prune.
+- Per-locale copy, so one project carries multiple language sets.
+- Autosave to `storeshots.project.json` on disk, mirrored to `localStorage` for instant reloads.
+- Drag-and-drop capture uploads landing in `public/captures/uploads/<hash>.png`.
+- Bulk export to a zip of deterministic PNGs covering every required store size.
+
+## Compositions & Palettes
+
+Each frame picks a **composition** (how copy and devices are arranged) and the project picks a
+**palette** (the colour mood). Mix compositions across a deck for rhythm.
+
+- **Compositions:** `beacon`, `plinth`, `canopy`, `duet`, `manifesto`, `column`, `marquee`.
+- **Palettes:** `ink` (dark), `frost` (cool light), `clay` (warm), `lagoon` (teal).
+
+## Surfaces & Export Sizes
+
+Every surface is authored at its largest size and uniformly downscaled on export. Bundles are
+organised by `store / surface / locale / <width>x<height>/`.
+
+| Surface | Store | Exported sizes (px) |
+|---------|-------|---------------------|
+| iPhone | App Store | 1320×2868, 1284×2778, 1206×2622, 1125×2436 |
+| iPad | App Store | 2064×2752, 2048×2732 |
+| Android phone | Google Play | 1080×1920 |
+| Android 7" tablet | Google Play | 1200×1920 (portrait), 1920×1200 (landscape) |
+| Android 10" tablet | Google Play | 1600×2560 (portrait), 2560×1600 (landscape) |
+| Feature graphic | Google Play | 1024×500 |
+
+## Project File
+
+`storeshots.project.json` is the single source of truth — product name, palette, locales, the
+active surface, and a separate deck of frames for each surface. The editor paints from
+`localStorage` first for speed, then reconciles with this file. Commit it if you want the deck
+reproducible after a fresh clone; leave it ignored to keep working files out of your repo.
+
+## Driving It From An Agent
+
+Once the skill is installed, describe the listing you want and let the agent scaffold and run the
+studio. It will gather your app context, captures, surfaces, locales, mood, and frame count first.
+
+Good asks look like:
+
+- *"Screenshots for my plant-care app — reminders, light meter, and a plant ID scanner. Frost palette, 5 iPhone frames."*
+- *"Play Store + App Store frames for a freelance invoicing app. Lead with 'get paid faster', clay palette, 6 frames."*
+- *"A meditation app deck in English and Spanish. Calm, dark mood, vary the device placement each frame."*
+
+To get the sharpest result, give the agent: one sentence on what the app does, the features
+that matter most (ranked), the surfaces and locales you need, the mood (maps to a palette), a
+frame count, and any capture paths or an app icon.
 
 ## Repository Layout
 
@@ -115,38 +106,14 @@ product docs (editor UI, compositions, export sizes, project state, tech stack).
 skills/
   storeshots/
     SKILL.md        # the agent skill (what gets installed)
-    template/       # the StoreShots editor that the skill scaffolds
+    template/       # the StoreShots studio the skill scaffolds
 ```
-
-## Export Sizes
-
-### Apple App Store
-
-| Display | Resolution |
-|---------|------------|
-| iPhone 6.9" | 1320 × 2868 |
-| iPhone 6.5" | 1284 × 2778 |
-| iPhone 6.3" | 1206 × 2622 |
-| iPhone 6.1" | 1125 × 2436 |
-| iPad 13" | 2064 × 2752 |
-| iPad Pro 12.9" | 2048 × 2732 |
-
-### Google Play Store
-
-| Device | Resolution |
-|--------|------------|
-| Phone | 1080 × 1920 |
-| 7" tablet portrait | 1200 × 1920 |
-| 7" tablet landscape | 1920 × 1200 |
-| 10" tablet portrait | 1600 × 2560 |
-| 10" tablet landscape | 2560 × 1600 |
-| Feature graphic | 1024 × 500 |
 
 ## Contributing
 
-Contributions are welcome — especially around export reliability, new device frames,
-composition presets, and screenshot design guidance. Open an issue to discuss larger changes,
-then send a PR.
+Issues and PRs are welcome — especially around export fidelity, new device shells, composition
+presets, and copy/design guidance. For anything large, open an issue first so we can align before
+you build.
 
 ## License
 
