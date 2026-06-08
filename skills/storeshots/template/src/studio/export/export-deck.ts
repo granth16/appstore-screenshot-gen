@@ -4,45 +4,6 @@ import { canvasSize, outputSizesFor, storeFor } from "@/domain/surfaces";
 import type { Scene, StageOrientation, Surface } from "@/domain/types";
 import { compactTimestamp, toSlug } from "@/utils/format";
 
-// Yield two animation frames before snapshotting. html-to-image captures only
-// what the browser has already painted, and the off-screen node needs a beat to
-// apply its export styles — a single frame intermittently lands mid-layout on
-// slower hardware.
-const nextPaint = () =>
-  new Promise<void>((resolve) => {
-    requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
-  });
-
-// Rasterize one node to a PNG data URL at an exact size. The node is parked at
-// the origin and uniformly scaled so the output buffer matches the request,
-// then every style we mutated is rolled back.
-async function captureNode(node: HTMLElement, w: number, h: number, scale: number): Promise<string> {
-  const saved = {
-    left: node.style.left,
-    top: node.style.top,
-    position: node.style.position,
-    transform: node.style.transform,
-    transformOrigin: node.style.transformOrigin,
-    zIndex: node.style.zIndex,
-  };
-  node.style.left = "0px";
-  node.style.top = "0px";
-  node.style.position = "absolute";
-  node.style.transform = `scale(${scale})`;
-  node.style.transformOrigin = "top left";
-  node.style.zIndex = "-1";
-  try {
-    return await toPng(node, { width: w, height: h, pixelRatio: 1, cacheBust: false });
-  } finally {
-    node.style.left = saved.left || "-99999px";
-    node.style.top = saved.top || "0px";
-    node.style.position = saved.position || "absolute";
-    node.style.transform = saved.transform;
-    node.style.transformOrigin = saved.transformOrigin;
-    node.style.zIndex = saved.zIndex;
-  }
-}
-
 export type DeckExportParams = {
   scenes: Scene[];
   surface: Surface;
@@ -64,63 +25,108 @@ export type DeckExportResult = {
   downloaded: boolean;
 };
 
-// For each locale → size → scene, rasterize a PNG and collect them into a single
-// downloaded zip. Returns counts the caller can turn into toasts.
+// Give the browser a couple of frames to commit a render before we rasterize.
+// Mounting the off-screen frames (or switching the export locale) mutates the
+// DOM, and html-to-image only captures what has actually been painted.
+async function settleLayout() {
+  await new Promise(requestAnimationFrame);
+  await new Promise(requestAnimationFrame);
+}
+
+// Rasterize a single off-screen frame to base64 PNG bytes. Instead of editing
+// the live node and putting it back, we hand html-to-image a one-shot style
+// override for its clone: pin it to the origin and scale it into the target box.
+async function frameToPng(
+  node: HTMLElement,
+  width: number,
+  height: number,
+  scale: number,
+): Promise<string> {
+  const dataUrl = await toPng(node, {
+    width,
+    height,
+    pixelRatio: 1,
+    cacheBust: false,
+    style: {
+      margin: "0",
+      left: "0",
+      top: "0",
+      position: "static",
+      transform: `scale(${scale})`,
+      transformOrigin: "top left",
+    },
+  });
+  return dataUrl.split(",")[1] ?? "";
+}
+
+type ExportJob = {
+  locale: string;
+  size: { w: number; h: number };
+  scene: Scene;
+  order: number;
+};
+
 export async function runDeckExport(p: DeckExportParams): Promise<DeckExportResult> {
   const sizes = outputSizesFor(p.surface, p.orientation);
-  const { w: canvasW, h: canvasH } = canvasSize(p.surface, p.orientation);
+  const { w: baseW, h: baseH } = canvasSize(p.surface, p.orientation);
   const store = storeFor(p.surface);
-  const zip = new JSZip();
 
-  const total = sizes.length * p.locales.length * p.scenes.length;
-  let done = 0;
-  let ok = 0;
-  let failed = 0;
-  const errors: string[] = [];
+  // Flatten the locale × size × frame matrix into one ordered work list. Keeping
+  // locale as the outer grouping means the stage is only re-rendered once per
+  // language instead of for every size.
+  const jobs: ExportJob[] = [];
+  for (const locale of p.locales) {
+    for (const size of sizes) {
+      p.scenes.forEach((scene, order) => jobs.push({ locale, size, scene, order }));
+    }
+  }
 
-  // Block on font readiness first so rasterized text matches the canvas.
+  // Wait for webfonts up front so exported glyphs match the on-screen stage.
   if (typeof document !== "undefined" && document.fonts?.ready) {
     try {
       await document.fonts.ready;
     } catch {
-      /* ignore */
+      /* fonts API is best-effort */
     }
   }
 
-  for (const locale of p.locales) {
-    p.onLocale(locale);
-    await nextPaint();
+  const zip = new JSZip();
+  const errors: string[] = [];
+  let ok = 0;
+  let failed = 0;
+  let activeLocale: string | null = null;
 
-    for (const size of sizes) {
-      // Fit the canvas into the target by scaling — never cropping.
-      const scale = Math.min(size.w / canvasW, size.h / canvasH);
+  for (let i = 0; i < jobs.length; i++) {
+    const { locale, size, scene, order } = jobs[i];
 
-      for (let i = 0; i < p.scenes.length; i++) {
-        const scene = p.scenes[i];
-        done += 1;
-        p.onProgress(`${done}/${total}`);
+    if (locale !== activeLocale) {
+      activeLocale = locale;
+      p.onLocale(locale);
+      await settleLayout();
+    }
 
-        const node = p.nodeFor(scene.id);
-        if (!node) {
-          failed += 1;
-          errors.push(`${locale} ${size.w}x${size.h} scene ${i + 1}: render target missing`);
-          continue;
-        }
-        try {
-          const dataUrl = await captureNode(node, size.w, size.h, scale);
-          const base64 = dataUrl.split(",")[1] || "";
-          const filename = `frame-${String(i + 1).padStart(2, "0")}-${scene.composition}.png`;
-          zip.file(`${store}/${p.surface}/${locale}/${size.w}x${size.h}/${filename}`, base64, {
-            base64: true,
-          });
-          ok += 1;
-        } catch (e) {
-          failed += 1;
-          const msg = e instanceof Error ? e.message : String(e);
-          errors.push(`${locale} ${size.w}x${size.h} scene ${i + 1}: ${msg}`);
-          console.error("Export failed", { sceneId: scene.id, locale, size }, e);
-        }
-      }
+    p.onProgress(`${i + 1}/${jobs.length}`);
+
+    const tag = `${locale} ${size.w}x${size.h} frame ${order + 1}`;
+    const node = p.nodeFor(scene.id);
+    if (!node) {
+      failed += 1;
+      errors.push(`${tag}: render target missing`);
+      continue;
+    }
+
+    try {
+      const scale = Math.min(size.w / baseW, size.h / baseH);
+      const base64 = await frameToPng(node, size.w, size.h, scale);
+      const name = `frame-${String(order + 1).padStart(2, "0")}-${scene.composition}.png`;
+      zip.file(`${store}/${p.surface}/${locale}/${size.w}x${size.h}/${name}`, base64, {
+        base64: true,
+      });
+      ok += 1;
+    } catch (e) {
+      failed += 1;
+      errors.push(`${tag}: ${e instanceof Error ? e.message : String(e)}`);
+      console.error("Frame export failed", { sceneId: scene.id, locale, size }, e);
     }
   }
 
@@ -130,19 +136,19 @@ export async function runDeckExport(p: DeckExportParams): Promise<DeckExportResu
   let downloaded = false;
   if (ok > 0) {
     const blob = await zip.generateAsync({ type: "blob" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${toSlug(p.productName)}-${store}-${p.surface}-${compactTimestamp()}.zip`;
-    link.click();
-    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    const href = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = href;
+    anchor.download = `${toSlug(p.productName)}-${store}-${p.surface}-${compactTimestamp()}.zip`;
+    anchor.click();
+    setTimeout(() => URL.revokeObjectURL(href), 5000);
     downloaded = true;
   }
 
   return {
     ok,
     failed,
-    total,
+    total: jobs.length,
     sizeCount: sizes.length,
     localeCount: p.locales.length,
     errors,

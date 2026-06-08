@@ -22,34 +22,30 @@ function migrateScene(scene: Scene): Scene {
   };
 }
 
-// Merge a partial (possibly older) document onto the current defaults and snap
-// the active locale back into range if it points at a dropped language.
+// Reconcile a stored (possibly older) document with the current defaults. Every
+// surface deck is run through scene migration, and the active locale is derived
+// from whatever locale list actually survives — never trusted blindly.
 export function hydrateDoc(partial: Partial<StudioDoc>): StudioDoc {
-  const decks = partial.scenesBySurface
-    ? Object.fromEntries(
-        Object.entries(partial.scenesBySurface).map(([surface, scenes]) => [
-          surface,
-          (scenes || []).map(migrateScene),
-        ]),
-      )
-    : {};
+  const migratedDecks = Object.fromEntries(
+    Object.entries(partial.scenesBySurface ?? {}).map(([surface, scenes]) => [
+      surface,
+      (scenes ?? []).map(migrateScene),
+    ]),
+  );
 
-  const doc: StudioDoc = {
+  const locales = partial.locales?.length ? partial.locales : [...DEFAULT_DOC.locales];
+  const locale = partial.locale && locales.includes(partial.locale) ? partial.locale : locales[0];
+
+  return {
     ...DEFAULT_DOC,
     ...partial,
+    locale,
+    locales,
     scenesBySurface: {
       ...DEFAULT_DOC.scenesBySurface,
-      ...decks,
+      ...migratedDecks,
     } as StudioDoc["scenesBySurface"],
   };
-
-  if (!doc.locales || doc.locales.length === 0) {
-    doc.locales = [...DEFAULT_DOC.locales];
-  }
-  if (!doc.locales.includes(doc.locale)) {
-    doc.locale = doc.locales[0];
-  }
-  return doc;
 }
 
 export function readLocal(): StudioDoc | null {

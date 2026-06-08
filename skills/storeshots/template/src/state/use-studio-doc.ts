@@ -2,23 +2,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { StudioDoc, Surface } from "@/domain/types";
 import { DEFAULT_DOC } from "./seed";
-import {
-  readFile,
-  readLocal,
-  writeFile,
-  writeLocal,
-} from "./persistence";
+import { readFile, readLocal, writeFile, writeLocal } from "./persistence";
 
-const MAX_HISTORY = 50;
-// Edits that land inside this window — a burst of typing, a slider being
-// dragged — fold into a single undo entry instead of dozens.
-const COALESCE_WINDOW_MS = 500;
-// Idle time after the final edit before we flush to storage.
-const PERSIST_DELAY_MS = 600;
+// Session tuning knobs.
+const HISTORY_CAP = 120; // most checkpoints we keep around
+const MERGE_WINDOW_MS = 400; // edits closer than this fold into one checkpoint
+const FLUSH_AFTER_MS = 750; // idle gap before an autosave fires
 
 type Mutation = StudioDoc | ((current: StudioDoc) => StudioDoc);
-
-const resolveMutation = (m: Mutation, current: StudioDoc): StudioDoc =>
+const apply = (m: Mutation, current: StudioDoc): StudioDoc =>
   typeof m === "function" ? m(current) : m;
 
 export function useStudioDoc() {
@@ -26,98 +18,104 @@ export function useStudioDoc() {
   const [hydrated, setHydrated] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // History is kept in refs so pushing/popping it never triggers a render.
-  const undoStack = useRef<StudioDoc[]>([]);
-  const redoStack = useRef<StudioDoc[]>([]);
-  const lastCommitAt = useRef(0);
+  // One timeline of checkpoints with a moving cursor: `timeline[cursor]` is
+  // always the live document, so undo/redo is just sliding the cursor. `live`
+  // mirrors the state so commits can read the current value synchronously.
+  const timeline = useRef<StudioDoc[]>([DEFAULT_DOC]);
+  const cursor = useRef(0);
+  const live = useRef<StudioDoc>(DEFAULT_DOC);
+  const lastEditAt = useRef(0);
+  const flushTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Load order: paint from the cached copy at once, then let the disk file win.
+  const publish = useCallback((next: StudioDoc) => {
+    live.current = next;
+    setDoc(next);
+  }, []);
+
+  // Seed from the cache for an instant first paint, then defer to the file.
   useEffect(() => {
-    let abandoned = false;
+    let stale = false;
     const cached = readLocal();
-    if (cached) setDoc(cached);
+    if (cached) publish(cached);
 
     void (async () => {
-      const fromDisk = await readFile();
-      if (abandoned) return;
-      if (fromDisk) setDoc(fromDisk);
-      undoStack.current = [];
-      redoStack.current = [];
-      lastCommitAt.current = 0;
+      const onDisk = await readFile();
+      if (stale) return;
+      const start = onDisk ?? cached ?? DEFAULT_DOC;
+      timeline.current = [start];
+      cursor.current = 0;
+      lastEditAt.current = 0;
+      publish(start);
       setHydrated(true);
     })();
 
     return () => {
-      abandoned = true;
+      stale = true;
     };
-  }, []);
+  }, [publish]);
 
-  // Autosave on a debounce, writing the cache and the disk file in tandem.
+  // Persist once the user pauses — cache first (must succeed), portable file next.
   useEffect(() => {
     if (!hydrated) return;
-    if (persistTimer.current) clearTimeout(persistTimer.current);
-    persistTimer.current = setTimeout(() => {
-      const local = writeLocal(doc);
-      void writeFile(doc).then((file) => {
-        if (file.ok && local.ok) {
-          setSavedAt(Date.now());
-          setSaveError(null);
-        } else if (!file.ok && !local.ok) {
-          setSaveError(file.error);
-        } else if (!file.ok) {
-          setSavedAt(Date.now());
-          setSaveError(`File save failed: ${file.error}`);
-        } else {
-          setSavedAt(Date.now());
-          setSaveError(local.ok ? null : local.error);
-        }
+    if (flushTimer.current) clearTimeout(flushTimer.current);
+    flushTimer.current = setTimeout(() => {
+      const cache = writeLocal(doc);
+      if (!cache.ok) {
+        setSaveError(cache.error);
+        return;
+      }
+      void writeFile(doc).then((disk) => {
+        setSavedAt(Date.now());
+        setSaveError(disk.ok ? null : `Couldn't write the project file: ${disk.error}`);
       });
-    }, PERSIST_DELAY_MS);
+    }, FLUSH_AFTER_MS);
     return () => {
-      if (persistTimer.current) clearTimeout(persistTimer.current);
+      if (flushTimer.current) clearTimeout(flushTimer.current);
     };
   }, [doc, hydrated]);
 
-  const commit = useCallback((mutation: Mutation) => {
-    setDoc((current) => {
-      const next = resolveMutation(mutation, current);
-      if (next === current) return current;
+  const commit = useCallback(
+    (mutation: Mutation) => {
+      const current = live.current;
+      const next = apply(mutation, current);
+      if (next === current) return;
+
       const now = Date.now();
-      if (now - lastCommitAt.current > COALESCE_WINDOW_MS) {
-        undoStack.current.push(current);
-        if (undoStack.current.length > MAX_HISTORY) undoStack.current.shift();
-        redoStack.current.length = 0;
+      const sameBurst = now - lastEditAt.current <= MERGE_WINDOW_MS;
+      lastEditAt.current = now;
+
+      if (sameBurst && timeline.current.length > 0) {
+        // Still the same burst of edits — overwrite the active checkpoint.
+        timeline.current[cursor.current] = next;
+      } else {
+        // New checkpoint — discard any redo branch, append, advance the cursor.
+        const kept = timeline.current.slice(0, cursor.current + 1);
+        kept.push(next);
+        if (kept.length > HISTORY_CAP) kept.shift();
+        timeline.current = kept;
+        cursor.current = kept.length - 1;
       }
-      lastCommitAt.current = now;
-      return next;
-    });
-  }, []);
+      publish(next);
+    },
+    [publish],
+  );
 
-  const undo = useCallback(() => {
-    setDoc((current) => {
-      const prev = undoStack.current.pop();
-      if (prev === undefined) return current;
-      redoStack.current.push(current);
-      lastCommitAt.current = 0;
-      return prev;
-    });
-  }, []);
+  const travel = useCallback(
+    (delta: -1 | 1) => {
+      const target = cursor.current + delta;
+      if (target < 0 || target >= timeline.current.length) return;
+      cursor.current = target;
+      lastEditAt.current = 0; // any edit after a jump starts a fresh checkpoint
+      publish(timeline.current[target]);
+    },
+    [publish],
+  );
 
-  const redo = useCallback(() => {
-    setDoc((current) => {
-      const next = redoStack.current.pop();
-      if (next === undefined) return current;
-      undoStack.current.push(current);
-      lastCommitAt.current = 0;
-      return next;
-    });
-  }, []);
+  const undo = useCallback(() => travel(-1), [travel]);
+  const redo = useCallback(() => travel(1), [travel]);
 
-  const resetAll = useCallback(() => {
-    commit(DEFAULT_DOC);
-  }, [commit]);
+  const resetAll = useCallback(() => commit(DEFAULT_DOC), [commit]);
 
   const resetSurface = useCallback(
     (surface: Surface) => {
