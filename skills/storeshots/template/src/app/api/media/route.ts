@@ -23,8 +23,8 @@ function decodeDataUri(dataUri: string): { mime: string; bytes: Buffer } | null 
   return { mime: match[1].toLowerCase(), bytes: Buffer.from(match[2], "base64") };
 }
 
-// Take a base64 data URI, name the file by a hash of its bytes, and persist it
-// under public/captures/uploads so the capture is still there after a clone.
+// Accept a base64 data URI, content-address it, and write it under
+// public/captures/uploads so the capture survives a clone.
 export async function POST(req: Request) {
   let body: { dataUri?: string };
   try {

@@ -4,18 +4,17 @@ import { canvasSize, outputSizesFor, storeFor } from "@/domain/surfaces";
 import type { Scene, StageOrientation, Surface } from "@/domain/types";
 import { compactTimestamp, toSlug } from "@/utils/format";
 
-// Yield two animation frames before snapshotting. html-to-image captures only
-// what the browser has already painted, and the off-screen node needs a beat to
-// apply its export styles — a single frame intermittently lands mid-layout on
-// slower hardware.
+// Two RAFs so React's render → browser layout/paint of the off-screen node has
+// settled before html-to-image snapshots it. One frame is occasionally short
+// on slower machines.
 const nextPaint = () =>
   new Promise<void>((resolve) => {
     requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
   });
 
-// Rasterize one node to a PNG data URL at an exact size. The node is parked at
-// the origin and uniformly scaled so the output buffer matches the request,
-// then every style we mutated is rolled back.
+// Snapshot a node at an exact pixel size. We move it to the origin and scale it
+// uniformly so the captured buffer matches the requested size, then restore the
+// styles we touched.
 async function captureNode(node: HTMLElement, w: number, h: number, scale: number): Promise<string> {
   const saved = {
     left: node.style.left,
@@ -64,8 +63,8 @@ export type DeckExportResult = {
   downloaded: boolean;
 };
 
-// For each locale → size → scene, rasterize a PNG and collect them into a single
-// downloaded zip. Returns counts the caller can turn into toasts.
+// Walk every locale × size × scene for a surface, render PNGs, and bundle them
+// into a downloaded zip. Returns a summary for the caller to surface as toasts.
 export async function runDeckExport(p: DeckExportParams): Promise<DeckExportResult> {
   const sizes = outputSizesFor(p.surface, p.orientation);
   const { w: canvasW, h: canvasH } = canvasSize(p.surface, p.orientation);
@@ -78,7 +77,7 @@ export async function runDeckExport(p: DeckExportParams): Promise<DeckExportResu
   let failed = 0;
   const errors: string[] = [];
 
-  // Block on font readiness first so rasterized text matches the canvas.
+  // Ensure fonts are ready so exported typography matches the screen.
   if (typeof document !== "undefined" && document.fonts?.ready) {
     try {
       await document.fonts.ready;
@@ -92,7 +91,7 @@ export async function runDeckExport(p: DeckExportParams): Promise<DeckExportResu
     await nextPaint();
 
     for (const size of sizes) {
-      // Fit the canvas into the target by scaling — never cropping.
+      // Uniform downscale so smaller targets shrink rather than crop.
       const scale = Math.min(size.w / canvasW, size.h / canvasH);
 
       for (let i = 0; i < p.scenes.length; i++) {

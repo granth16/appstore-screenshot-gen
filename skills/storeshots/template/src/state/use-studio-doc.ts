@@ -10,10 +10,10 @@ import {
 } from "./persistence";
 
 const MAX_HISTORY = 50;
-// Edits that land inside this window — a burst of typing, a slider being
-// dragged — fold into a single undo entry instead of dozens.
+// Rapid edits (typing, dragging a slider) within this window collapse into one
+// undo step.
 const COALESCE_WINDOW_MS = 500;
-// Idle time after the final edit before we flush to storage.
+// How long to wait after the last edit before persisting.
 const PERSIST_DELAY_MS = 600;
 
 type Mutation = StudioDoc | ((current: StudioDoc) => StudioDoc);
@@ -28,12 +28,12 @@ export function useStudioDoc() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // History is kept in refs so pushing/popping it never triggers a render.
+  // Undo/redo stacks live in refs — they never drive a render directly.
   const undoStack = useRef<StudioDoc[]>([]);
   const redoStack = useRef<StudioDoc[]>([]);
   const lastCommitAt = useRef(0);
 
-  // Load order: paint from the cached copy at once, then let the disk file win.
+  // Hydrate: localStorage first for instant paint, then the on-disk file wins.
   useEffect(() => {
     let abandoned = false;
     const cached = readLocal();
@@ -54,7 +54,7 @@ export function useStudioDoc() {
     };
   }, []);
 
-  // Autosave on a debounce, writing the cache and the disk file in tandem.
+  // Debounced autosave to both localStorage (fast) and the file (portable).
   useEffect(() => {
     if (!hydrated) return;
     if (persistTimer.current) clearTimeout(persistTimer.current);

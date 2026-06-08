@@ -22,8 +22,8 @@ function migrateScene(scene: Scene): Scene {
   };
 }
 
-// Merge a partial (possibly older) document onto the current defaults and snap
-// the active locale back into range if it points at a dropped language.
+// Fill gaps from a partial (possibly older) document with current defaults and
+// repair an out-of-range active locale.
 export function hydrateDoc(partial: Partial<StudioDoc>): StudioDoc {
   const decks = partial.scenesBySurface
     ? Object.fromEntries(
