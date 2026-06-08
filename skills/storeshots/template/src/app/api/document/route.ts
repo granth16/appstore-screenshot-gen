@@ -1,40 +1,65 @@
 import { promises as fs } from "node:fs";
-import path from "node:path";
+import { join } from "node:path";
 import { NextResponse } from "next/server";
 import { DOC_FILE_NAME } from "@/domain/settings";
 
 export const dynamic = "force-dynamic";
 
-const docPath = () => path.join(process.cwd(), DOC_FILE_NAME);
+type JsonObject = Record<string, unknown>;
 
-const fail = (error: string, status = 500) => NextResponse.json({ ok: false, error }, { status });
+function docPath() {
+  return join(process.cwd(), DOC_FILE_NAME);
+}
 
-// Read the persisted studio document. A missing file is not an error — the
-// client falls back to its seed.
+function ok(payload: JsonObject = {}) {
+  return NextResponse.json({ ok: true, ...payload });
+}
+
+function err(message: string, status = 500) {
+  return NextResponse.json({ ok: false, error: message }, { status });
+}
+
+function isMissingFile(e: unknown) {
+  return (e as NodeJS.ErrnoException | null)?.code === "ENOENT";
+}
+
+const message = (e: unknown, fallback: string) =>
+  e instanceof Error ? e.message : fallback;
+
+// GET /api/document
+// Returns the saved studio document. A project that has never been saved simply
+// has no file yet, which we report as `doc: null` rather than an error.
 export async function GET() {
   try {
-    const raw = await fs.readFile(docPath(), "utf8");
-    return NextResponse.json({ ok: true, doc: JSON.parse(raw) });
+    const contents = await fs.readFile(docPath(), "utf8");
+    return ok({ doc: JSON.parse(contents) });
   } catch (e) {
-    if ((e as NodeJS.ErrnoException).code === "ENOENT") {
-      return NextResponse.json({ ok: true, doc: null });
-    }
-    return fail(e instanceof Error ? e.message : String(e));
+    if (isMissingFile(e)) return ok({ doc: null });
+    return err(message(e, "Could not read the document"));
   }
 }
 
-// Persist the document, pretty-printed so it stays diff-friendly in git.
-export async function POST(req: Request) {
-  let body: unknown;
+// POST /api/document
+// Overwrites the saved document. The body has to be a JSON object; it is written
+// with two-space indentation (and a trailing newline) so the file stays
+// diff-friendly when committed.
+export async function POST(request: Request) {
+  let payload: unknown;
   try {
-    body = await req.json();
+    payload = await request.json();
   } catch {
-    return fail("Invalid JSON", 400);
+    return err("Request body was not valid JSON", 400);
   }
+
+  if (payload === null || typeof payload !== "object" || Array.isArray(payload)) {
+    return err("Expected a JSON object", 422);
+  }
+
   try {
-    await fs.writeFile(docPath(), `${JSON.stringify(body, null, 2)}\n`, "utf8");
-    return NextResponse.json({ ok: true });
+    const text = JSON.stringify(payload, null, 2);
+    await fs.writeFile(docPath(), text.endsWith("\n") ? text : `${text}\n`, "utf8");
+    return ok();
   } catch (e) {
-    return fail(e instanceof Error ? e.message : String(e));
+    return err(message(e, "Could not write the document"));
   }
 }
