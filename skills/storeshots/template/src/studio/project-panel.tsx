@@ -16,8 +16,9 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
+import { PALETTES, PALETTE_ORDER } from "@/domain/palettes";
 import { SURFACE_NAME, SURFACE_ORDER, storeFor } from "@/domain/surfaces";
-import type { Surface } from "@/domain/types";
+import type { PaletteId, Surface } from "@/domain/types";
 
 type Props = {
   productName: string;
@@ -25,6 +26,8 @@ type Props = {
   surface: Surface;
   setSurface: (value: Surface) => void;
   surfaceName: string;
+  paletteId: PaletteId;
+  setPaletteId: (value: PaletteId) => void;
   onResetAll: () => void;
   onResetSurface: () => void;
   busy: boolean;
@@ -33,6 +36,19 @@ type Props = {
 function StoreGlyph({ surface, className }: { surface: Surface; className?: string }) {
   const Icon = storeFor(surface) === "apple" ? Apple : Play;
   return <Icon className={className} />;
+}
+
+function PaletteSwatch({ id, className }: { id: PaletteId; className?: string }) {
+  const palette = PALETTES[id];
+  return (
+    <span
+      aria-hidden
+      className={className}
+      style={{
+        background: `linear-gradient(135deg, ${palette.surface} 50%, ${palette.accent} 50%)`,
+      }}
+    />
+  );
 }
 
 // Document-level controls. There is no separate App Store / Google Play switch —
@@ -44,6 +60,8 @@ export function ProjectPanel({
   surface,
   setSurface,
   surfaceName,
+  paletteId,
+  setPaletteId,
   onResetAll,
   onResetSurface,
   busy,
@@ -89,6 +107,32 @@ export function ProjectPanel({
                 <span className="flex items-center gap-2">
                   <StoreGlyph surface={s} className="h-3.5 w-3.5 text-muted-foreground" />
                   {SURFACE_NAME[s]}
+                </span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select
+          value={paletteId}
+          onValueChange={(v) => setPaletteId(v as PaletteId)}
+          disabled={busy}
+        >
+          <SelectTrigger className="h-9 text-sm">
+            <span className="!flex min-w-0 items-center gap-2">
+              <PaletteSwatch
+                id={paletteId}
+                className="h-4 w-4 shrink-0 rounded-full ring-1 ring-border"
+              />
+              <span className="truncate">{PALETTES[paletteId].name} Theme</span>
+            </span>
+          </SelectTrigger>
+          <SelectContent>
+            {PALETTE_ORDER.map((p) => (
+              <SelectItem key={p} value={p}>
+                <span className="flex items-center gap-2">
+                  <PaletteSwatch id={p} className="h-3.5 w-3.5 rounded-full ring-1 ring-border" />
+                  {PALETTES[p].name} Theme
                 </span>
               </SelectItem>
             ))}

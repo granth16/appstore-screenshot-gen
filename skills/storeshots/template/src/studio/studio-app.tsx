@@ -266,6 +266,8 @@ export function StudioApp() {
           surface={doc.surface}
           setSurface={setSurface}
           surfaceName={surfaceName}
+          paletteId={doc.paletteId}
+          setPaletteId={(v) => commit((d) => ({ ...d, paletteId: v }))}
           onResetAll={() => {
             resetAll();
             setActiveSceneId(null);
