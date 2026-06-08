@@ -58,8 +58,8 @@ Each frame picks a composition that arranges the copy block and one or two devic
 2. Clone and run the editor:
 
    ```bash
-   git clone https://github.com/granth16/appstore-screenshot-gen.git
-   cd appstore-screenshot-gen
+   git clone https://github.com/granth16/screenshot-gen-appstore.git
+   cd screenshot-gen-appstore
    npm install
    npm run dev
    ```

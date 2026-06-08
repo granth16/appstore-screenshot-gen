@@ -25,9 +25,9 @@ size. Everything runs on your machine — no account, no upload, no cloud.
 [`skills`](https://skills.sh) CLI:
 
 ```bash
-npx skills add granth16/appstore-screenshot-gen          # this project
-npx skills add granth16/appstore-screenshot-gen -g       # global
-npx skills add granth16/appstore-screenshot-gen -a cursor  # one agent
+npx skills add granth16/screenshot-gen-appstore          # this project
+npx skills add granth16/screenshot-gen-appstore -g       # global
+npx skills add granth16/screenshot-gen-appstore -a cursor  # one agent
 ```
 
 Compatible with Cursor, Claude Code, Windsurf, Codex, OpenCode, and the other agents the
@@ -36,8 +36,8 @@ Compatible with Cursor, Claude Code, Windsurf, Codex, OpenCode, and the other ag
 **2. As a normal app — clone and run.** No agent required:
 
 ```bash
-git clone https://github.com/granth16/appstore-screenshot-gen
-cd appstore-screenshot-gen/skills/storeshots/template
+git clone https://github.com/granth16/screenshot-gen-appstore
+cd screenshot-gen-appstore/skills/storeshots/template
 npm install
 npm run dev
 ```
